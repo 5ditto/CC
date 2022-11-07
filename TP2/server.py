@@ -1,12 +1,14 @@
 import socket 
 
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# AF_INET -> IPv4
+# SOCK_DGRAM -> UDP
 
-endereco = '10.0.0.10'
-porta = 3333
+endereco = '127.0.0.1'
+porta = 12345
 s.bind((endereco, porta ))
 
-print(f"Estou à escuta no {endereco}:{porta}")
+print(f"Estou à escuta no {endereco}:{porta}") 
 
 while True:
     msg, add = s.recvfrom(1024)
