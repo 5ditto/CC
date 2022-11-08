@@ -61,10 +61,25 @@ class Dominio:
             lista = re.split(" ", line)
 
             if lista[0] != "#":
-                if len(lista) < 4: # Se o lista[2] for o ultimo elemento retiramos o '\n'
-                    self.db[lista[1]] = lista[2][:-1]
+
+                if lista[0] == "TTL":
+                    self.db['TTL'] = lista[2][:-1]
                 else:
-                    self.db[lista[1]] = lista[2]
+                    # Se a chave ainda não existir no dicionario associamo-la a um set de valores
+                    if lista[1] not in self.db.keys():
+                        self.db[lista[1]] = set()
+
+                    if len(lista) < 4: # Se o lista[2] for o ultimo elemento retiramos o '\n'
+                        self.db[lista[1]].add(lista[2][:-1])
+                    else:
+                        valor = ''
+                        i = 2
+                        while i < len(lista):
+                            valor += lista[i] + " "
+                            i += 1 
+                        valor = valor[:-2]
+                        self.db[lista[1]].add(valor)
+                
 
         f.close()
 

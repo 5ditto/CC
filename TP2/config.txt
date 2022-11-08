@@ -1,8 +1,8 @@
 # Configuration file for primary server for example.com
-example.com DB C:\Users\smgon\Desktop\CC\baseDadosSP.txt
+example.com DB /home/core/Desktop/CCTP2/baseDadosSP.txt
 example.com SS 193.123.5.189
 example.com SS 193.123.5.190:5353
 example.com DD 127.0.0.1
 example.com LG /var/dns/example-com.log
 all LG /var/dns/all.log
-root ST C:\Users\smgon\Desktop\CC\sts.txt 
+root ST /home/core/Desktop/CCTP2/sts.txt

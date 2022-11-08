@@ -39,4 +39,5 @@ def geraMsgQuery(recursiva, name, typeValue):
 
 msg = geraMsgQuery(recursiva, name, typeValue)
 s.sendto(msg.encode('utf-8'), (ipServer, int(porta)))
-print(msg)
+RespMsg, add = s.recvfrom(1024)
+print(str(RespMsg))
