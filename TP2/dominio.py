@@ -56,7 +56,8 @@ class Dominio:
     def parseFicheiroBaseDadosSP(self):
         self.ficheiroDb = self.ficheiroDb[:-1]
         f = open(self.ficheiroDb, "r")
-
+        # Servidores Autoritários
+        self.db["A"] = dict()
         for line in f:
             lista = re.split(" ", line)
 
@@ -64,6 +65,14 @@ class Dominio:
 
                 if lista[0] == "TTL":
                     self.db['TTL'] = lista[2][:-1]
+                elif lista[1] == "A":
+                    valor = ''
+                    i = 2
+                    while i < len(lista):
+                        valor += lista[i] + " "
+                        i += 1
+                    valor = valor[:-2]
+                    self.db["A"][lista[0]] = valor
                 else:
                     # Se a chave ainda não existir no dicionario associamo-la a um set de valores
                     if lista[1] not in self.db.keys():
@@ -78,8 +87,7 @@ class Dominio:
                             valor += lista[i] + " "
                             i += 1 
                         valor = valor[:-2]
-                        self.db[lista[1]].add(valor)
-                
+                        self.db[lista[1]].add(valor)   
 
         f.close()
 

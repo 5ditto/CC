@@ -28,7 +28,11 @@ def geraRespQuery(msgQuery, dom):
         returnMsg += dominio + " NS " + elem + "\n"
         returnMsg = returnMsg.replace("TTL", dom.db["TTL"]) # Substituir o "TTL" pelo seu respetivo valor 
     
-    # Falta a parte dos servidores autoritários
+    #Parte dos servidores autoritários
+    for key in dom.db['A'].keys():
+        string = dom.db['A'][key].replace("TTL", dom.db["TTL"])
+        returnMsg += key + dominio + " " + "A" + string + "\n"
+
     return returnMsg
  
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

@@ -33,8 +33,6 @@ def geraMsgQuery(recursiva, name, typeValue):
     nExtraVal = '0'
     return msgId + "," + flags + "," + responseCode + "," + nValues + "," + nAuthorities + "," + nExtraVal + ";" + name + "," + typeValue + ";" 
 
-
-
 #print("Ip: " + ipServer + ", porta: " + porta + ", name: " + name + ", tipo do valor: " + typeValue + ", recursivo: " + str(recursiva)) 
 
 msg = geraMsgQuery(recursiva, name, typeValue)
