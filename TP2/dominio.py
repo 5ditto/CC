@@ -58,11 +58,13 @@ class Dominio:
         f = open(self.ficheiroDb, "r")
         # Servidores Autoritários
         self.db["A"] = dict()
+        nrEntradas = 0
+
         for line in f:
             lista = re.split(" ", line)
 
             if lista[0] != "#":
-
+                nrEntradas += 1
                 if lista[0] == "TTL":
                     self.db['TTL'] = lista[2][:-1]
                 elif lista[1] == "A":
@@ -89,6 +91,7 @@ class Dominio:
                         valor = valor[:-2]
                         self.db[lista[1]].add(valor)   
 
+        self.db[str(nrEntradas)] = nrEntradas
         f.close()
 
     def __str__(self):

@@ -32,8 +32,23 @@ def geraRespQuery(msgQuery, dom):
     for key in dom.db['A'].keys():
         string = dom.db['A'][key].replace("TTL", dom.db["TTL"])
         returnMsg += key + dominio + " " + "A" + string + "\n"
-
     return returnMsg
+
+
+def transferenciaZona(s, dom):
+    # Primeiro recebe o nome completo do domínio
+    nomeDom = s.recv(1024)
+    nomeDom = nomeDom.decode('utf-8')
+
+    if nomeDom != dom.name : # Nome de domínio inválido
+        # Terminar ligação TCP
+        return False
+    
+    # Verificar se o IP de quem quer a copia da db está na lista do dom.endSS
+
+    nrEntradas = dom.db['nrEntradas']
+    s.sendall(str(nrEntradas).encode('utf-8'))
+    
  
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 # AF_INET -> IPv4
