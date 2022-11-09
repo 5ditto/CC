@@ -112,8 +112,8 @@ class Dominio:
         return string
 
 
-d = Dominio()
-d.parseFicheiroConfig("config.txt")
-d.parseFicheiroListaST()
-d.parseFicheiroBaseDadosSP()
-print(d)
+#d = Dominio()
+#d.parseFicheiroConfig("config.txt")
+#d.parseFicheiroListaST()
+#d.parseFicheiroBaseDadosSP()
+#print(d)
