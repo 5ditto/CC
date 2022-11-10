@@ -38,33 +38,48 @@ def geraRespQuery(msgQuery, dom):
 def transferenciaZona(connection, address, dom):
     # Na transferência de zona o cliente é o SS e o servidor é o SP
     # Primeiro recebe o nome completo do domínio
+    address = "193.123.5.189"
     nomeDom = connection.recv(1024).decode('utf-8')
     print("Nome: " + nomeDom)
     nome = dom.name + "."
+
     if nomeDom != nome : # Nome de domínio inválido
-        # Terminar ligação TCP
+        print("Dominio inválido")
+        connection.close()
         return False
-    
-    # Verificar se o IP de quem quer a copia da db está na lista do dom.endSS
+
+    autorizacao = False
+    for ip in dom.endSS:
+        # Quem está a pedir a transferência de zona tem permissão para receber uma cópia da base de dados
+        if ip == address:
+            autorizacao = True
+            break
+        
+    # Quem está a pedir a transferência de zona não tem permissão para receber uma cópia da base de dados
+    if autorizacao == False:
+        print("Não tem autorização")
+        connection.close()
+        return False
 
     nrEntradas = dom.db['nrEntradas']
-    print("Entradas: " + str(nrEntradas))
     connection.sendall(str(nrEntradas).encode('utf-8'))
     resposta = connection.recv(1024).decode('utf-8')
     if resposta != str(nrEntradas):
-        # Terminar ligação TCP
+        print("Número de entradas não foi aceite")
+        connection.close()
         return False
+
     # Mandar cada linha da base de dados para o SS
-    print("DB")
     f = open(dom.ficheiroDb, 'r')
     i = 1
     respostaDb = ''
     for line in f:
         respostaDb += str(i) + " " + line
         i += 1
+    f.close()
+
     connection.sendall(respostaDb.encode('utf-8'))
     connection.close()
-    f.close()
 
 # Função que espera por novas ligações TCP ao SP e depois chama a função transferênciaZona para as tratar
 def conexaoTCP(socketTCP, dom):
@@ -88,7 +103,7 @@ sTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 d = Dominio()
 d.parseFicheiroConfig("config.txt")
-d.parseFicheiroBaseDadosSP()
+d.parseFicheiroBaseDados()
 
 # Uma thread executa a função conexão TCP e recebe o socket TCP como argumento
 threading.Thread(target=conexaoTCP, args=(sTCP, d)).start()
