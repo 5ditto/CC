@@ -91,7 +91,7 @@ class Dominio:
                         valor = valor[:-2]
                         self.db[lista[1]].add(valor)   
 
-        self.db[str(nrEntradas)] = nrEntradas
+        self.db['nrEntradas'] = nrEntradas
         f.close()
 
     def __str__(self):
