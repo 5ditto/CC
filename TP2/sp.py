@@ -113,11 +113,12 @@ class SP:
         porta = 5555
         self.socketTCP.bind((endereco, porta))
         self.socketTCP.listen()
-
+        
         while True:
             connection, address = self.socketTCP.accept()
             print(f"Recebi uma ligação do cliente {address}, conexão {connection}")
             threading.Thread(target=self.devolveVersaoDB, args=(connection, address)).start()    
+
 
 sp = SP()
 sp.conexaoTCP()
