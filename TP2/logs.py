@@ -1,45 +1,6 @@
 import logging
-# from dominio import Dominio
-
 # Aspetos positivos : data está bem :)
 
-#Como meter isto no ficheiro????
-fstLine = "# Log File for DNS server/resolver"
-test = "ola"
-source = "SP"
-logging.basicConfig(filename = "logs"+source+".log", filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
-
-
-def QR_QE():
-
-    return 
-
-def RP_RR():
-    return
-
-def ZT(port, role, time, totalbytes):
-    return port + " " + role + " " + time + " " + totalbytes
-
-def EV(msg):
-    return msg
-
-def ER():
-    return  
-
-def EZ(end, role):
-    return end +" " +  role
-
-def FL(errorType):
-    return "127.0.0.1 " + errorType
-
-def TO(timeoutType):
-    return timeoutType
-
-def SP(reason):
-    return "127.0.0.1 " + reason
-
-def ST(port,timeout,mode):
-    return "127.0.0.1" + port + " " + timeout + " " + mode
 # Tipos de Entradas que existem
 #  QR/QE -> end que recebeu/enviou a query + dados relevante da query 
 #  RP/RR -> end que recebeu/enviou a resposta da query + dados relevante da resposta da query 
@@ -52,4 +13,77 @@ def ST(port,timeout,mode):
 #  SP -> End: 127.0.0.1 + razão da paragem
 #  ST -> End: 127.0.0.1 + porta de atendimento + timeout(milissegundos) + modo de funcionamento(shy/debug)
 
-logging.info(test)
+class Logs:
+
+    def __init__(self, source):
+        fstLine = "# Log File for DNS server/resolver\n"
+        self.fileLogs = "logs" + source + ".log"
+        f = open(self.fileLogs, "a")
+        f.write(fstLine)
+        f.close()
+
+    # Se recebido == true então significa que o componente recebeu uma query, caso contrário foi ele que enviou uma query
+    def QR_QE(self, recebido, endereco, infoQuery=''):
+        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+        
+        if recebido:
+            string = "QR " + endereco + " " + infoQuery
+        else:
+            string = "QE " + endereco + " " + infoQuery
+        
+        logging.info(string)
+
+    def RP_RR(self, recebido, endereco, infoQuery=''):
+        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+        
+        if recebido:
+            string = "RR " + endereco + " " + infoQuery
+        else:
+            string = "RP " + endereco + " " + infoQuery
+
+        logging.info(string)
+
+    def ZT(self, endereco, role, time='', totalbytes=''):
+        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+        
+        if time == '' and totalbytes == '':
+            string = "ZT " + endereco + " " + role
+        else:
+            string = endereco + " " + role + " " + time + " " + totalbytes
+
+        logging.info(string)
+
+    def EV(self, eventType, msg):
+        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+        string = "EV " + eventType + " " + msg 
+        logging.info(string)
+
+    def ER(self, endereco):
+        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+        string = "ER " + endereco   
+        logging.info(string)
+
+    def EZ(self, endereco, role):
+        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+        string = "EZ " + endereco + " " +  role
+        logging.info(string)
+
+    def FL(self, errorType):
+        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+        string = "FL 127.0.0.1 " + errorType
+        logging.info(string)
+
+    def TO(self, timeoutType):
+        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+        string = "TO " + timeoutType
+        logging.info(string)
+
+    def SP(self, reason):
+        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+        string = "SP 127.0.0.1 " + reason
+        logging.info(string)
+
+    def ST(self, port, timeout, mode):
+        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+        string = "ST 127.0.0.1 " + port + " " + timeout + " " + mode
+        logging.info(string)

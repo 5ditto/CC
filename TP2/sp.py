@@ -1,17 +1,21 @@
 # Podemos considerar isto o SP
 import re
+import sys
 import socket 
 from dominio import Dominio
+from logs import Logs
 import threading
 
 class SP:
 
     def __init__(self):
+        self.logs = Logs("SP")
         self.dom = Dominio()
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.dom.parseFicheiroConfig("config.txt")
         self.dom.parseFicheiroBaseDados()
+        self.logs.ST(sys.argv[1], sys.argv[2], sys.argv[3])
         threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
 
 
