@@ -160,10 +160,3 @@ class Dominio:
         
         string += "\n" + str(self.db)
         return string
-
-
-#d = Dominio()
-#d.parseFicheiroConfig("config.txt")
-#d.parseFicheiroListaST()
-#d.parseFicheiroBaseDados()
-#print(d)

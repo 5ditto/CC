@@ -5,19 +5,21 @@ import socket
 import time
 from dominio import Dominio
 from logs import Logs
+from cache import Cache
 import threading
 
 class SP:
 
     def __init__(self):
+        self.cache = Cache()
         self.logs = Logs("SP")
         self.dom = Dominio()
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.dom.parseFicheiroConfig("config.txt")
-        self.dom.parseFicheiroBaseDados()
+        self.parseDB()
         self.logs.ST(sys.argv[1], sys.argv[2], sys.argv[3])
-        threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
+        #threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
 
 
     def geraRespQuery(self, msgQuery, dom):  
@@ -33,7 +35,6 @@ class SP:
         nValues = str(len(dom.db[typeValue]))
         nAuthorities = str(len(dom.db['NS']))  # Verificar isto
         nExtraVal = str(len(dom.db['A']))      # Verificar isto
-
 
         returnMsg = msgId + "," + flags + "," + responseCode + "," + nValues + "," + nAuthorities + "," + nExtraVal
         returnMsg += ";" + dominio + "," + typeValue + ";\n"
@@ -127,10 +128,41 @@ class SP:
             connection, address = self.socketTCP.accept()
             print(f"Recebi uma ligação do cliente {address}, conexão {connection}")
             threading.Thread(target=self.devolveVersaoDB, args=(connection, address)).start()    
+        
+    def encontraNomeTTLDom(self, file):
+        name = ''
+        ttl = ''
+
+        for line in file:
+            x = re.split(" ", line)
+            if x[1] == 'DEFAULT' and x[0] == '@': 
+                name = x[2]
+            
+            if x[1] == 'DEFAULT' and x[0] == 'TTL':
+                ttl = x[2]
+
+            if name != '' and ttl != '':
+                return name, ttl 
+        
+        return name, ttl
+        
+    def parseDB(self):
+        f = open(self.dom.ficheiroDb[:-1], 'r')
+        name, ttl = self.encontraNomeTTLDom(f)
+
+        for line in f:
+            splited = re.split(' ', line) 
+            if splited[0] != '#':
+                if len(splited) >= 5:
+                    self.cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE', splited[4])
+                else:
+                    self.cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE')
+        
+        f.close()
 
 
 sp = SP()
-sp.conexaoTCP()
+print(str(sp.cache.cache[0]))
 
 #endereco = '127.0.0.1'
 #porta = 12345
