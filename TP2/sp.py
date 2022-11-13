@@ -2,6 +2,7 @@
 import re
 import sys
 import socket 
+import time
 from dominio import Dominio
 from logs import Logs
 import threading
@@ -32,6 +33,7 @@ class SP:
         nValues = str(len(dom.db[typeValue]))
         nAuthorities = str(len(dom.db['NS']))  # Verificar isto
         nExtraVal = str(len(dom.db['A']))      # Verificar isto
+
 
         returnMsg = msgId + "," + flags + "," + responseCode + "," + nValues + "," + nAuthorities + "," + nExtraVal
         returnMsg += ";" + dominio + "," + typeValue + ";\n"
@@ -74,6 +76,7 @@ class SP:
         if autorizacao == False:
             print("Não tem autorização")
             connection.close()
+            self.logs.EZ(address,'SP')
             return False
 
         nrEntradas = self.dom.db['nrEntradas']
@@ -82,18 +85,24 @@ class SP:
         if resposta != str(nrEntradas):
             print("Número de entradas não foi aceite")
             connection.close()
+            self.logs.EZ(address,'SP')
             return False
 
         # Mandar cada linha da base de dados para o SS
+        t_inicial = time.time()
         f = open(self.dom.ficheiroDb, 'r')
-        i = 1
+        i = 1       
         respostaDb = ''
         for line in f:
             respostaDb += str(i) + " " + line
             i += 1
         f.close()
-
-        connection.sendall(respostaDb.encode('utf-8'))
+        t_final = time.time
+        t = (t_final - t_inicial) * 1000
+        reposta = respostaDb.encode('utf-8')
+        n_bytes = len(resposta)
+        self.logs.ZT(address,'SP',t, n_bytes)
+        connection.sendall(reposta)
         connection.close()
 
     def devolveVersaoDB(self, connection, address):

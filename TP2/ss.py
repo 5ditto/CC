@@ -1,9 +1,11 @@
 import socket 
 from dominio import Dominio
+from logs import Logs
 
 class SS:
 
     def __init__(self):
+        self.logs = Logs("SS")
         self.dom = Dominio()
         self.versaoDB = -1
         self.db = dict()
@@ -23,12 +25,13 @@ class SS:
         s.sendall(msg.encode('utf-8'))
         nrEntradas = s.recv(1024) # recebe o número de entradas da db
         print(str(nrEntradas))
-        s.sendall(nrEntradas)     # aceita respondendo com o mesmo número que recebeu
+        s.sendall(nrEntradas) # aceita respondendo com o mesmo número que recebeu
         while True:
             parteDb = s.recv(1024).decode('utf-8')
             if not parteDb:
                 # Faz o parse da string final da transferencia de zona para a "cache" do SS
                 self.dom.parseStringParaDB(dbString)
+                self.logs.ZT(s,"SS"," "," ")
                 return dbString
             dbString += parteDb
 
