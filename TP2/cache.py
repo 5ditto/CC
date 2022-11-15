@@ -16,7 +16,7 @@ class Cache:
         now = datetime.now()
         result = -1
 
-        while index < 300:
+        while index <= 300:
             if self.cache[index-1][5] == 'OTHERS':
                 diff = now - self.cache[index-1][6]
                 if diff.total_seconds() > float(self.cache[index-1][3]):
@@ -29,13 +29,13 @@ class Cache:
         return result
 
     def campoValor(self, index):
-        if index < self.nrEntradas:
-            return self.cache[index][2]
+        if index <= self.nrEntradas:
+            return self.cache[index-1][2]
         return ''
 
     def entrada(self, index):
-        if index < self.nrEntradas:
-            return self.cache[index][0] + " " + self.cache[index][1] + " " + self.cache[index][2] + " " + self.cache[index][3] + " " + self.cache[index][4]
+        if index <= self.nrEntradas:
+            return self.cache[index-1][0] + " " + self.cache[index-1][1] + " " + self.cache[index-1][2] + " " + self.cache[index-1][3] + " " + self.cache[index-1][4]
         return ''
 
     def procuraPrimeiraEntradaFree(self):
@@ -108,5 +108,3 @@ class Cache:
         for i in range(300):
             if self.cache[i][0] == name:
                 self.cache[i][8] = 'FREE'
-
-c = Cache()

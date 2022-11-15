@@ -27,41 +27,47 @@ class SP:
         respQuery = ''
         
         lista = re.split(";", msgQuery)
-        headerFields = lista[0] 
-        queryInfo = lista[1]
+        headerFields = re.split(',', lista[0])
+        queryInfo = re.split(',', lista[1])
         respQuery += headerFields[0]
-
+        print("Query info: " + str(queryInfo))
         nameDom = self.dom.name + '.'
+        print("Nome Domínio: " + nameDom)
         # Flags:
         # Como se trata do SP do domínio em questão então é autoritativo
         if queryInfo[0] == nameDom:
-            queryInfo[1] += '+A'
-        respQuery += "," + queryInfo
-
+            headerFields[1] += '+A'
+        respQuery += "," + lista[1]
+        print(respQuery)
         # Response Code:
+        print(queryInfo)
         index = self.cache.procuraEntradaValid(1, queryInfo[0], queryInfo[1])
-        if index < self.cache.nrEntradas:
+        print("Index: "+ str(index))
+        if index < self.cache.nrEntradas and index >= 0:
+            print("OLA")
             extraValues = ''
             responseCode = '0'
             respQuery += "," + responseCode
             respDir = ''
             nrval = 0
-
-            while index < self.cache.nrEntradas:
+            print(respQuery)
+            while index < self.cache.nrEntradas and index >= 0:
                 nrval += 1
                 respDir += self.cache.entrada(index)
+                print(respDir)
                 comp = self.cache.campoValor(index)
-                index = self.cache.procuraEntradaValid(index+1, queryInfo[0], queryInfo[1])
+                indice = self.cache.procuraEntradaValid(index+1, queryInfo[0], queryInfo[1])
+                index = indice
                 i = self.cache.procuraEntradaValid(1, comp, 'A')
                 extraValues += self.cache.entrada(i)
 
             nrValues = str(nrval)
             respQuery += "," + nrValues
-
+            print(respQuery)
             authorities = ''
             nrAutorithies = 0
             index = self.cache.procuraEntradaValid(1, queryInfo[0], 'NS')
-            while index < self.cache.nrEntradas:
+            while index < self.cache.nrEntradas and index >= 0:
                 nrAutorithies += 1
                 authorities += self.cache.entrada(index)
                 comp = self.cache.campoValor(index)
@@ -74,6 +80,7 @@ class SP:
             respQuery += respDir
             respQuery += authorities
             respQuery += extraValues 
+            print(respQuery)
         elif queryInfo[0] == nameDom:
             responseCode = '1'
         else:
@@ -84,7 +91,7 @@ class SP:
     def recebeQuerys(self):
         msg, add = self.socketUDP.recvfrom(1024)
         msgResp = self.geraRespQuery(msg.decode('utf-8'))
-        self.socketUDP.sendall(msgResp.encode('utf-8'), add)
+        self.socketUDP.sendto(msgResp.encode('utf-8'), add)
 
     def transferenciaZona(self, connection, address):
         # Na transferência de zona o cliente é o SS e o servidor é o SP
@@ -194,4 +201,5 @@ class SP:
         f.close()
 
 sp = SP()
+print(sp.cache.cache)
 sp.recebeQuerys()
