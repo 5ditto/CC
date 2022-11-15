@@ -30,7 +30,7 @@ class SP:
         headerFields = re.split(',', lista[0])
         queryInfo = re.split(',', lista[1])
         respQuery += headerFields[0]
-        print("Query info: " + str(queryInfo))
+        
         nameDom = self.dom.name + '.'
         print("Nome Domínio: " + nameDom)
         # Flags:
@@ -76,7 +76,7 @@ class SP:
                 extraValues += self.cache.entrada(i)
             nrAutoridades = str(nrAutorithies)
             nrExtraValues = str(nrval + nrAutorithies)   
-            respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + queryInfo
+            respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1]
             respQuery += respDir
             respQuery += authorities
             respQuery += extraValues 
@@ -201,5 +201,4 @@ class SP:
         f.close()
 
 sp = SP()
-print(sp.cache.cache)
 sp.recebeQuerys()
