@@ -19,7 +19,7 @@ class SP:
         self.dom.parseFicheiroConfig("config.txt")
         self.parseDB()
         self.logs.ST(sys.argv[1], sys.argv[2], sys.argv[3])
-        #threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
+        threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
 
 
     def geraRespQuery(self, msgQuery, dom):  
@@ -63,6 +63,7 @@ class SP:
 
         if nomeDom != nome : # Nome de domínio inválido
             print("Dominio inválido")
+            self.logs.EZ(address,'SP')
             connection.close()
             return False
 
@@ -80,7 +81,7 @@ class SP:
             self.logs.EZ(address,'SP')
             return False
 
-        nrEntradas = self.dom.db['nrEntradas']
+        nrEntradas = self.cache.nrEntradas
         connection.sendall(str(nrEntradas).encode('utf-8'))
         resposta = connection.recv(1024).decode('utf-8')
         if resposta != str(nrEntradas):
@@ -90,7 +91,6 @@ class SP:
             return False
 
         # Mandar cada linha da base de dados para o SS
-        t_inicial = time.time()
         f = open(self.dom.ficheiroDb, 'r')
         i = 1       
         respostaDb = ''
@@ -98,19 +98,19 @@ class SP:
             respostaDb += str(i) + " " + line
             i += 1
         f.close()
-        t_final = time.time
-        t = (t_final - t_inicial) * 1000
         reposta = respostaDb.encode('utf-8')
-        n_bytes = len(resposta)
-        self.logs.ZT(address,'SP',t, n_bytes)
+        self.logs.ZT(address,'SP')
         connection.sendall(reposta)
+        print("Acabou")
         connection.close()
 
     def devolveVersaoDB(self, connection, address):
 
         msg = connection.recv(1024).decode('utf-8')
         if msg == 'VersaoDB':
-            connection.sendall(self.dom.db['SOASERIAL'].encode('utf-8'))
+            name = self.dom.name + '.'
+            index = self.cache.procuraEntradaValid(1, name, 'SOASERIAL')
+            connection.sendall(self.cache.cache[index][2].encode('utf-8'))
             resposta = connection.recv(1024).decode('utf-8')
             if resposta == 'continua':
                 self.transferenciaZona(connection, address)
@@ -147,9 +147,9 @@ class SP:
         return name, ttl
         
     def parseDB(self):
-        f = open(self.dom.ficheiroDb[:-1], 'r')
+        f = open(self.dom.ficheiroDb, 'r')
         name, ttl = self.encontraNomeTTLDom(f)
-
+        name = name[:-1]
         for line in f:
             splited = re.split(' ', line) 
             if splited[0] != '#':
@@ -160,22 +160,4 @@ class SP:
         
         f.close()
 
-
 sp = SP()
-print(str(sp.cache.cache[0]))
-
-#endereco = '127.0.0.1'
-#porta = 12345
-#sUDP.bind((endereco, porta))
-#
-#
-#print(f"Estou à escuta no {endereco}:{porta}") 
-#
-#while True:
-#    msg, add = sUDP.recvfrom(1024)
-#    msgQuery = msg.decode('utf-8')
-#    respMsg = geraRespQuery(msgQuery, d)
-#    print(respMsg)
-#    sUDP.sendto(respMsg.encode('utf-8'), add)
-#
-#s.close()

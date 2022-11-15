@@ -6,6 +6,7 @@ class Cache:
 
     def __init__(self):
         self.cache = []
+        self.nrEntradas = 64000
         
         for i in range(64000):
             entrada = ['','','','','','','',str(i),'FREE']
@@ -97,4 +98,3 @@ class Cache:
         for i in range(64000):
             if self.cache[i][0] == name:
                 self.cache[i][8] = 'FREE'
-

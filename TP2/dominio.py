@@ -26,7 +26,7 @@ class Dominio:
                 else:
                     self.name = lista[0]
                     if lista[1] == 'DB':
-                        self.ficheiroDb = lista[2]
+                        self.ficheiroDb = lista[2][:-1]
                     
                     if lista[1] == 'SP':
                         self.endSP = lista[2]

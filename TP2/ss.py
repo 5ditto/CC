@@ -1,16 +1,54 @@
 import socket 
+import re
+import sys
 from dominio import Dominio
 from logs import Logs
+from cache import Cache
 
 class SS:
 
     def __init__(self):
+        self.cache = Cache()
         self.logs = Logs("SS")
         self.dom = Dominio()
         self.versaoDB = -1
         self.db = dict()
         self.dom.parseFicheiroConfig("config.txt")
+        #self.logs.ST(sys.argv[1], sys.argv[2], sys.argv[3])
     
+    def encontraNomeTTLDom(self, lista):
+        name = ''
+        ttl = ''
+
+        for elem in lista:
+            if elem[1] == '@' and elem[2] == 'DEFAULT':
+                name = elem[3]
+            elif elem[1] == 'TTL' and elem[2] == 'DEFAULT':
+                ttl = elem[3]
+
+            if name != '' and ttl != '':
+                break
+        
+        return name, ttl
+
+    def constroiCacheSS(self, dbString):
+        lista = re.split('\n', dbString)
+        i = 0
+
+        for elem in lista:
+            lista[i] = re.split(' ', elem)
+            i += 1
+
+        name, ttl = self.encontraNomeTTLDom(lista)
+
+        for entrada in lista:
+            if len(entrada) >= 6:
+                self.logs.EV("Registada entrada na cache do SS")
+                self.cache.registaAtualizaEntrada(name, entrada[2], entrada[3],  ttl, 'SP', entrada[5])
+            else:
+                self.logs.EV("Registada entrada na cache do SS")
+                self.cache.registaAtualizaEntrada(name, entrada[2], entrada[3],  ttl, 'SP')
+
     # Na transferência de zona o cliente é o SS e o servidor é o SP
     # Falta implementar isto na transferência de zona:
     # O SS vai verificando se recebeu todas as entradas esperadas até um tempo predefinido se esgotar. Quando esse tempo terminar
@@ -22,6 +60,7 @@ class SS:
         #s.connect(('127.0.0.1', 3333))
         # Primeiro enviar o nome completo do domínio
         msg = self.dom.name + "."
+        print("Domínio: " + msg)
         s.sendall(msg.encode('utf-8'))
         nrEntradas = s.recv(1024) # recebe o número de entradas da db
         print(str(nrEntradas))
@@ -30,7 +69,7 @@ class SS:
             parteDb = s.recv(1024).decode('utf-8')
             if not parteDb:
                 # Faz o parse da string final da transferencia de zona para a "cache" do SS
-                self.dom.parseStringParaDB(dbString)
+                self.constroiCacheSS(dbString)
                 self.logs.ZT(s,"SS"," "," ")
                 return dbString
             dbString += parteDb
@@ -52,7 +91,7 @@ class SS:
             print(versao)
             if versao != self.versaoDB:# Base de dados do SS está desatualizada
                 s.sendall('continua'.encode('utf-8'))
-                dbString = self.transferenciaZona(self.dom, s)
+                dbString = self.transferenciaZona(s)
             else:
                 s.sendall('termina'.encode('utf-8'))
                 s.close()
@@ -64,4 +103,6 @@ class SS:
 
 ss = SS()
 ss.verificaVersaoDB()
-print(str(ss.db))
+
+for i in range(100):
+    print(ss.cache.cache[i])
