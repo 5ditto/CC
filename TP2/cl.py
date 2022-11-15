@@ -8,34 +8,32 @@ import sys
 import re
 import random
 
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# AF_INET -> IPv4
-# SOCK_DGRAM -> UDP
-splited = re.split("\:|\]", sys.argv[1])
-splited[0] = splited[0][:-1]
-ipServer = splited[0]
-porta = splited[1]
-name = sys.argv[2]
-typeValue = sys.argv[3]
-if len(sys.argv) < 5:
-    recursiva = False
-else:
-    recursiva = True
+class CL:
 
-def geraMsgQuery(recursiva, name, typeValue):
-    msgId = str(random.randint(1, 65535))
-    flags = 'Q'
-    if recursiva:
-        flags += '+R'
-    responseCode = '0'
-    nValues = '0'
-    nAuthorities = '0'
-    nExtraVal = '0'
-    return msgId + "," + flags + "," + responseCode + "," + nValues + "," + nAuthorities + "," + nExtraVal + ";" + name + "," + typeValue + ";" 
+    def __init__(self):
+        self.sUDp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        splited = re.split(":", sys.argv[1])
+        self.ipServer = splited[0]
+        self.porta = splited[1]
+        self.name = sys.argv[2]
+        self.typeValue = sys.argv[3]
+        if len(sys.argv) < 5:
+            self.recursiva = False
+        else:
+            self.recursiva = True
 
-#print("Ip: " + ipServer + ", porta: " + porta + ", name: " + name + ", tipo do valor: " + typeValue + ", recursivo: " + str(recursiva)) 
+    def geraMsgQuery(self):
+        msgId = str(random.randint(1, 65535))
+        flags = 'Q'
+        if self.recursiva:
+            flags += '+R'
+        return msgId + "," + flags + "," + "0,0,0,0" + ";" + self.name + "," + self.typeValue + ";" 
 
-msg = geraMsgQuery(recursiva, name, typeValue)
-s.sendto(msg.encode('utf-8'), (ipServer, int(porta)))
-RespMsg, add = s.recvfrom(1024)
-print(str(RespMsg))
+    def queryCL(self):
+        msg = self.geraMsgQuery()
+        self.sUDp.sendto(msg.encode('utf-8'), (self.ipServer, int(self.porta)))
+        RespMsg, add = self.sUDp.recvfrom(1024)
+        print(str(RespMsg))
+
+cl = CL()
+cl.queryCL()

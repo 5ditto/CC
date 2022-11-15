@@ -49,3 +49,9 @@
 # Log File for DNS server/resolver
 15:11:2022.09:48:34 ST 127.0.0.1 53 20000 shy
 15:11:2022.09:48:36 ZT 193.123.5.189 SP
+# Log File for DNS server/resolver
+15:11:2022.19:42:18 ST 127.0.0.1 53 2000 shy
+# Log File for DNS server/resolver
+15:11:2022.19:44:45 ST 127.0.0.1 53 20000 shy
+# Log File for DNS server/resolver
+15:11:2022.19:46:13 ST 127.0.0.1 53 2000 shy

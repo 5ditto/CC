@@ -15,6 +15,7 @@ class SP:
         self.logs = Logs("SP")
         self.dom = Dominio()
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socketUDP.bind(("127.0.0.1",12345))
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.dom.parseFicheiroConfig("config.txt")
         self.parseDB()
@@ -22,36 +23,68 @@ class SP:
         threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
 
 
-    def geraRespQuery(self, msgQuery, dom):  
-        x = re.split(",|;", msgQuery)
-        msgId = x[0]
-        flags = x[1]
-        if "R" in flags:
-            flags = "R+A"
-        # Codificar aqui os casos de erro (1, 2 e 3)
-        responseCode = '0' # Não houve erros
-        dominio = x[6] 
-        typeValue = x[7]
-        nValues = str(len(dom.db[typeValue]))
-        nAuthorities = str(len(dom.db['NS']))  # Verificar isto
-        nExtraVal = str(len(dom.db['A']))      # Verificar isto
+    def geraRespQuery(self, msgQuery): 
+        respQuery = ''
+        
+        lista = re.split(";", msgQuery)
+        headerFields = lista[0] 
+        queryInfo = lista[1]
+        respQuery += headerFields[0]
 
-        returnMsg = msgId + "," + flags + "," + responseCode + "," + nValues + "," + nAuthorities + "," + nExtraVal
-        returnMsg += ";" + dominio + "," + typeValue + ";\n"
+        nameDom = self.dom.name + '.'
+        # Flags:
+        # Como se trata do SP do domínio em questão então é autoritativo
+        if queryInfo[0] == nameDom:
+            queryInfo[1] += '+A'
+        respQuery += "," + queryInfo
 
-        for elem in dom.db[typeValue]:
-            returnMsg += dominio + " " + typeValue + " " + elem + "\n"
-            returnMsg = returnMsg.replace("TTL", dom.db["TTL"]) # Substituir o "TTL" pelo seu respetivo valor 
+        # Response Code:
+        index = self.cache.procuraEntradaValid(1, queryInfo[0], queryInfo[1])
+        if index < self.cache.nrEntradas:
+            extraValues = ''
+            responseCode = '0'
+            respQuery += "," + responseCode
+            respDir = ''
+            nrval = 0
 
-        for elem in dom.db['NS']:
-            returnMsg += dominio + " NS " + elem + "\n"
-            returnMsg = returnMsg.replace("TTL", dom.db["TTL"]) # Substituir o "TTL" pelo seu respetivo valor 
+            while index < self.cache.nrEntradas:
+                nrval += 1
+                respDir += self.cache.entrada(index)
+                comp = self.cache.campoValor(index)
+                index = self.cache.procuraEntradaValid(index+1, queryInfo[0], queryInfo[1])
+                i = self.cache.procuraEntradaValid(1, comp, 'A')
+                extraValues += self.cache.entrada(i)
 
-        #Parte dos servidores autoritários
-        for key in dom.db['A'].keys():
-            string = dom.db['A'][key].replace("TTL", dom.db["TTL"])
-            returnMsg += key + dominio + " " + "A" + string + "\n"
-        return returnMsg
+            nrValues = str(nrval)
+            respQuery += "," + nrValues
+
+            authorities = ''
+            nrAutorithies = 0
+            index = self.cache.procuraEntradaValid(1, queryInfo[0], 'NS')
+            while index < self.cache.nrEntradas:
+                nrAutorithies += 1
+                authorities += self.cache.entrada(index)
+                comp = self.cache.campoValor(index)
+                index = self.cache.procuraEntradaValid(index+1, queryInfo[0], 'NS')
+                i = self.cache.procuraEntradaValid(1, comp, 'A')
+                extraValues += self.cache.entrada(i)
+            nrAutoridades = str(nrAutorithies)
+            nrExtraValues = str(nrval + nrAutorithies)   
+            respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + queryInfo
+            respQuery += respDir
+            respQuery += authorities
+            respQuery += extraValues 
+        elif queryInfo[0] == nameDom:
+            responseCode = '1'
+        else:
+            responseCode = '2'
+
+        return respQuery
+
+    def recebeQuerys(self):
+        msg, add = self.socketUDP.recvfrom(1024)
+        msgResp = self.geraRespQuery(msg.decode('utf-8'))
+        self.socketUDP.sendall(msgResp.encode('utf-8'), add)
 
     def transferenciaZona(self, connection, address):
         # Na transferência de zona o cliente é o SS e o servidor é o SP
@@ -161,3 +194,4 @@ class SP:
         f.close()
 
 sp = SP()
+sp.recebeQuerys()

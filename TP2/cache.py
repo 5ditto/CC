@@ -6,17 +6,17 @@ class Cache:
 
     def __init__(self):
         self.cache = []
-        self.nrEntradas = 64000
+        self.nrEntradas = 300
         
-        for i in range(64000):
+        for i in range(300):
             entrada = ['','','','','','','',str(i),'FREE']
             self.cache.append(entrada)
 
     def procuraEntradaValid(self, index, name, type):
         now = datetime.now()
-        result = 64001
+        result = -1
 
-        while index <= 64000:
+        while index < 300:
             if self.cache[index-1][5] == 'OTHERS':
                 diff = now - self.cache[index-1][6]
                 if diff.total_seconds() > float(self.cache[index-1][3]):
@@ -28,16 +28,26 @@ class Cache:
         
         return result
 
+    def campoValor(self, index):
+        if index < self.nrEntradas:
+            return self.cache[index][2]
+        return ''
+
+    def entrada(self, index):
+        if index < self.nrEntradas:
+            return self.cache[index][0] + " " + self.cache[index][1] + " " + self.cache[index][2] + " " + self.cache[index][3] + " " + self.cache[index][4]
+        return ''
+
     def procuraPrimeiraEntradaFree(self):
 
-        for i in range(64000):
+        for i in range(300):
             if self.cache[i][8] == 'FREE':
                 return i
         
-        return 64001
+        return -1
 
     def procuraUltimaEntradaFree(self):
-        i = 64000
+        i = 299
 
         while i >= 0:
             if self.cache[i][8] == 'FREE':
@@ -48,11 +58,11 @@ class Cache:
 
     def procuraEntradaCompleta(self, name, type, value, order):
 
-        for i in range(64000):
+        for i in range(300):
             if self.cache[i][0] == name and self.cache[i][1] == type and self.cache[i][2] == value and self.cache[i][4] == order:
                 return i
         
-        return 64001
+        return -1
 
     # Se calhar o ttl não é necessário receber
     # Esta função retorna false quando o pedido de registo de uma entrada é ignorado caso contrário retorna true
@@ -95,6 +105,8 @@ class Cache:
 
     def limpaCache(self, name):
 
-        for i in range(64000):
+        for i in range(300):
             if self.cache[i][0] == name:
                 self.cache[i][8] = 'FREE'
+
+c = Cache()
