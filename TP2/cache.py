@@ -1,5 +1,4 @@
 from datetime import datetime
-import time
 
 # Apesar do campo TimeStamp ser iniciado como uma string no futuro vai ser alterado para ser um objeto do tipo datetime
 class Cache:

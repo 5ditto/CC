@@ -103,6 +103,4 @@ class SS:
 
 ss = SS()
 ss.verificaVersaoDB()
-
-for i in range(100):
-    print(ss.cache.cache[i])
+print(ss.cache.cache)
