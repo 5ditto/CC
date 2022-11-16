@@ -12,8 +12,9 @@ class SS:
         self.logs = Logs("SS")
         self.dom = Dominio()
         self.versaoDB = -1
-        self.db = dict()
         self.dom.parseFicheiroConfig("config.txt")
+        self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.socketUDP.bind(("127.0.0.1", 3333))
         #self.logs.ST(sys.argv[1], sys.argv[2], sys.argv[3])
     
     def encontraNomeTTLDom(self, lista):
@@ -101,6 +102,75 @@ class SS:
 
         return dbString
 
+    def geraRespQuery(self, msgQuery): 
+        respQuery = ''
+        
+        lista = re.split(";", msgQuery)
+        headerFields = re.split(',', lista[0])
+        queryInfo = re.split(',', lista[1])
+        respQuery += headerFields[0]
+
+        nameDom = self.dom.name + '.'
+        print("Nome Domínio: " + nameDom)
+        # Flags:
+        # Como se trata do SP do domínio em questão então é autoritativo
+        if queryInfo[0] == nameDom:
+            headerFields[1] += '+A'
+            
+        # Response Code:
+        print(queryInfo)
+        index = self.cache.procuraEntradaValid(1, queryInfo[0], queryInfo[1])
+        print("Index: "+ str(index))
+        if index < self.cache.nrEntradas and index >= 0:
+            extraValues = ''
+            responseCode = '0'
+            respQuery += "," + responseCode
+            respValues = ''
+            nrval = 0
+
+            listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], queryInfo[1])
+            for index in listaIndex:
+                respValues += self.cache.entrada(index)
+                nrval += 1
+                comp = self.cache.campoValor(index)
+                i = self.cache.procuraEntradaValid(1, comp, 'A')
+                extraValues += self.cache.entrada(i)
+            nrValues = str(nrval)
+
+            respQuery += "," + nrValues
+
+        elif queryInfo[0] == nameDom:
+            responseCode = '1'
+            nrval = 0
+            respValues = ''
+        else:
+            responseCode = '2'
+            nrval = 0 
+            respValues = ''
+
+        authorities = ''
+        nrAutorithies = 0
+        listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], 'NS')
+        for index in listaIndex:
+            authorities += self.cache.entrada(index)
+            nrAutorithies += 1
+            comp = self.cache.campoValor(index)
+            i = self.cache.procuraEntradaValid(1, comp, 'A')
+            extraValues += self.cache.entrada(i)
+        nrAutoridades = str(nrAutorithies)
+        nrExtraValues = str(nrval + nrAutorithies)   
+        respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + "; "
+        respQuery += respValues
+        respQuery += authorities
+        respQuery += extraValues 
+        print(respQuery)
+        return respQuery
+
+    def recebeQuerys(self):
+        msg, add = self.socketUDP.recvfrom(1024)
+        msgResp = self.geraRespQuery(msg.decode('utf-8'))
+        self.socketUDP.sendto(msgResp.encode('utf-8'), add)
+
 ss = SS()
 ss.verificaVersaoDB()
-print(ss.cache.cache)
+ss.recebeQuerys()
