@@ -28,6 +28,16 @@ class Cache:
         
         return result
 
+    def todasEntradasValid(self, index, name, type):
+        result = []
+
+        while index <= 300:
+            if self.cache[index-1][0] == name and self.cache[index-1][1] == type:
+                result.append(index)
+            index += 1
+
+        return result
+
     def campoValor(self, index):
         if index <= self.nrEntradas:
             return self.cache[index-1][2]

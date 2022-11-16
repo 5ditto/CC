@@ -30,62 +30,61 @@ class SP:
         headerFields = re.split(',', lista[0])
         queryInfo = re.split(',', lista[1])
         respQuery += headerFields[0]
-        
+
         nameDom = self.dom.name + '.'
         print("Nome Domínio: " + nameDom)
         # Flags:
         # Como se trata do SP do domínio em questão então é autoritativo
         if queryInfo[0] == nameDom:
             headerFields[1] += '+A'
-        respQuery += "," + lista[1]
-        print(respQuery)
+            
         # Response Code:
         print(queryInfo)
         index = self.cache.procuraEntradaValid(1, queryInfo[0], queryInfo[1])
         print("Index: "+ str(index))
         if index < self.cache.nrEntradas and index >= 0:
-            print("OLA")
             extraValues = ''
             responseCode = '0'
             respQuery += "," + responseCode
-            respDir = ''
+            respValues = ''
             nrval = 0
-            print(respQuery)
-            while index < self.cache.nrEntradas and index >= 0:
-                nrval += 1
-                respDir += self.cache.entrada(index)
-                print(respDir)
-                comp = self.cache.campoValor(index)
-                indice = self.cache.procuraEntradaValid(index+1, queryInfo[0], queryInfo[1])
-                index = indice
-                i = self.cache.procuraEntradaValid(1, comp, 'A')
-                extraValues += self.cache.entrada(i)
 
-            nrValues = str(nrval)
-            respQuery += "," + nrValues
-            print(respQuery)
-            authorities = ''
-            nrAutorithies = 0
-            index = self.cache.procuraEntradaValid(1, queryInfo[0], 'NS')
-            while index < self.cache.nrEntradas and index >= 0:
-                nrAutorithies += 1
-                authorities += self.cache.entrada(index)
+            listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], queryInfo[1])
+            for index in listaIndex:
+                respValues += self.cache.entrada(index)
+                nrval += 1
                 comp = self.cache.campoValor(index)
-                index = self.cache.procuraEntradaValid(index+1, queryInfo[0], 'NS')
                 i = self.cache.procuraEntradaValid(1, comp, 'A')
                 extraValues += self.cache.entrada(i)
-            nrAutoridades = str(nrAutorithies)
-            nrExtraValues = str(nrval + nrAutorithies)   
-            respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1]
-            respQuery += respDir
-            respQuery += authorities
-            respQuery += extraValues 
-            print(respQuery)
+            nrValues = str(nrval)
+
+            respQuery += "," + nrValues
+
         elif queryInfo[0] == nameDom:
             responseCode = '1'
+            nrval = 0
+            respValues = ''
         else:
             responseCode = '2'
+            nrval = 0 
+            respValues = ''
 
+        authorities = ''
+        nrAutorithies = 0
+        listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], 'NS')
+        for index in listaIndex:
+            authorities += self.cache.entrada(index)
+            nrAutorithies += 1
+            comp = self.cache.campoValor(index)
+            i = self.cache.procuraEntradaValid(1, comp, 'A')
+            extraValues += self.cache.entrada(i)
+        nrAutoridades = str(nrAutorithies)
+        nrExtraValues = str(nrval + nrAutorithies)   
+        respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + "; "
+        respQuery += respValues
+        respQuery += authorities
+        respQuery += extraValues 
+        print(respQuery)
         return respQuery
 
     def recebeQuerys(self):
@@ -179,7 +178,7 @@ class SP:
                 name = x[2]
             
             if x[1] == 'DEFAULT' and x[0] == 'TTL':
-                ttl = x[2]
+                ttl = x[2][:-1]
 
             if name != '' and ttl != '':
                 return name, ttl 
@@ -191,7 +190,7 @@ class SP:
         name, ttl = self.encontraNomeTTLDom(f)
         name = name[:-1]
         for line in f:
-            splited = re.split(' ', line) 
+            splited = re.split(' ', line[:-1]) 
             if splited[0] != '#':
                 if len(splited) >= 5:
                     self.cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE', splited[4])
