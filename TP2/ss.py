@@ -8,14 +8,14 @@ from cache import Cache
 class SS:
 
     def __init__(self):
+        self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o ficheiro config
+        self.dom.parseFicheiroConfig()
         self.cache = Cache()
-        self.logs = Logs("SS")
-        self.dom = Dominio()
+        self.logs = Logs(self.dom.ficheiroLogs)
         self.versaoDB = -1
-        self.dom.parseFicheiroConfig("config.txt")
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socketUDP.bind(("127.0.0.1", 3333))
-        #self.logs.ST(sys.argv[1], sys.argv[2], sys.argv[3])
+        self.logs.ST(sys.argv[2], sys.argv[3], sys.argv[4])
     
     def encontraNomeTTLDom(self, lista):
         name = ''

@@ -2,7 +2,6 @@
 import re
 import sys
 import socket 
-import time
 from dominio import Dominio
 from logs import Logs
 from cache import Cache
@@ -11,17 +10,16 @@ import threading
 class SP:
 
     def __init__(self):
+        self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o seu ficheiro config
+        self.dom.parseFicheiroConfig()
         self.cache = Cache()
-        self.logs = Logs("SP")
-        self.dom = Dominio()
+        self.parseDB()
+        self.logs = Logs(self.dom.ficheiroLogs)
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socketUDP.bind(("127.0.0.1",12345))
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.dom.parseFicheiroConfig("config.txt")
-        self.parseDB()
-        self.logs.ST(sys.argv[1], sys.argv[2], sys.argv[3])
+        self.logs.ST(sys.argv[2], sys.argv[3], sys.argv[4])
         threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
-
 
     def geraRespQuery(self, msgQuery): 
         respQuery = ''

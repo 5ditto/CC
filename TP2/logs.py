@@ -15,9 +15,9 @@ import logging
 
 class Logs:
 
-    def __init__(self, source):
+    def __init__(self, fileName):
         fstLine = "# Log File for DNS server/resolver\n"
-        self.fileLogs = "logs" + source + ".log"
+        self.fileLogs = fileName
         f = open(self.fileLogs, "a")
         f.write(fstLine)
         f.close()
