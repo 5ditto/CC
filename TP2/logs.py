@@ -13,11 +13,15 @@ import logging
 #  SP -> End: 127.0.0.1 + razão da paragem
 #  ST -> End: 127.0.0.1 + porta de atendimento + timeout(milissegundos) + modo de funcionamento(shy/debug)
 
+
+# O fileLogs serve para registar todos os logs que estejam relacionados com o domínio ao qual o servidor pertence
+# O fileLogsAll serve para registar todos os logs que não estejam relacionados com o domínio ao qual o servidor pertence
 class Logs:
 
-    def __init__(self, fileName):
+    def __init__(self, fileLogs = '', fileLogsAll = ''):
         fstLine = "# Log File for DNS server/resolver\n"
-        self.fileLogs = fileName
+        self.fileLogs = fileLogs
+        self.fileLogsAll = fileLogsAll
         f = open(self.fileLogs, "a")
         f.write(fstLine)
         f.close()

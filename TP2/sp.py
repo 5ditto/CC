@@ -14,7 +14,7 @@ class SP:
         self.dom.parseFicheiroConfig()
         self.cache = Cache()
         self.parseDB()
-        self.logs = Logs(self.dom.ficheiroLogs)
+        self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll)
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socketUDP.bind(("127.0.0.1",12345))
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -198,4 +198,4 @@ class SP:
         f.close()
 
 sp = SP()
-sp.recebeQuerys()
+print(sp.dom)

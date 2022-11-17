@@ -7,6 +7,7 @@ class Dominio:
         self.ficheiroConfig = ficheiroConfig
         self.ficheiroDb = ''
         self.ficheiroSTs = ''
+        self.ficheiroLogsAll = ''
         self.ficheiroLogs = ''
         self.endSP = ''
         self.endSS = [] # Lista de strings dos ip's dos SS 
@@ -20,7 +21,7 @@ class Dominio:
             lista = re.split(" ", line)
             if lista[0] != "#":
                 if lista[0] == 'all':
-                    self.ficheiroLogs = lista[2]
+                    self.ficheiroLogsAll = lista[2].replace('\n', '')
                 elif lista[0] == 'root':
                     self.ficheiroSTs = lista[2]
                 else:
@@ -38,7 +39,7 @@ class Dominio:
                         self.endSR = lista[2]
                     
                     if lista[1] == 'LG':
-                        self.ficheiroLogs = lista[2]
+                        self.ficheiroLogs = lista[2].replace('\n', '')
 
         f.close() 
 
@@ -69,10 +70,10 @@ class Dominio:
 
         return string
 
-dom = Dominio("config.txt")
-dom.parseFicheiroConfig()
-dom.parseFicheiroListaST()
-print(dom)
+#dom = Dominio("config.txt")
+#dom.parseFicheiroConfig()
+#dom.parseFicheiroListaST()
+#print(dom)
 
 
 

@@ -11,7 +11,7 @@ class SS:
         self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o ficheiro config
         self.dom.parseFicheiroConfig()
         self.cache = Cache()
-        self.logs = Logs(self.dom.ficheiroLogs)
+        self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll)
         self.versaoDB = -1
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socketUDP.bind(("127.0.0.1", 3333))
