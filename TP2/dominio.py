@@ -23,7 +23,7 @@ class Dominio:
                 if lista[0] == 'all':
                     self.ficheiroLogsAll = lista[2].replace('\n', '')
                 elif lista[0] == 'root':
-                    self.ficheiroSTs = lista[2]
+                    self.ficheiroSTs = lista[2].replace('\n', '')
                 else:
                     self.name = lista[0]
                     if lista[1] == 'DB':

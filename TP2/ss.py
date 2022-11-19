@@ -85,9 +85,10 @@ class SS:
     def verificaVersaoDB(self):
         dbString = ''
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+        ipPorta = re.split(':', self.dom.endSP)
+        
         try:
-            s.connect(('127.0.0.1', 5555))
+            s.connect((ipPorta[0], int(ipPorta[1])))
 
             msg = 'VersaoDB'
             s.sendall(msg.encode('utf-8'))
@@ -162,7 +163,7 @@ class SS:
         nrAutoridades = str(nrAutorithies)
         nrExtraValues = str(nrval + nrAutorithies)   
         respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + "; "
-        respQuery += respValues
+        respQuery += respValues 
         respQuery += authorities
         respQuery += extraValues
         return respQuery
@@ -174,6 +175,6 @@ class SS:
             msgResp = self.geraRespQuery(msg.decode('utf-8'))
             self.socketUDP.sendto(msgResp.encode('utf-8'), add)
             self.logs.RP_RR(False, str(add), msgResp)
-
+            
 ss = SS()
 ss.verificaVersaoDB() # Inicia o processo da transferência de zona
