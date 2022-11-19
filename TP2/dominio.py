@@ -30,7 +30,7 @@ class Dominio:
                         self.ficheiroDb = lista[2].replace('\n', '')
                     
                     if lista[1] == 'SP':
-                        self.endSP = lista[2]
+                        self.endSP = lista[2].replace('\n', '')
                     
                     if lista[1] == 'SS':
                         self.endSS.append(lista[2].replace('\n', ''))

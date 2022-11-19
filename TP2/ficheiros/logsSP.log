@@ -1,2 +1,172 @@
 # Log File for DNS server/resolver
-17:11:2022.18:26:41 ST 127.0.0.1 53 2000 shy
+19:11:2022.14:24:18 ST 127.0.0.1 53 2000 shy
+19:11:2022.14:24:18 EV 127.0.0.1 ficheiro de configuração lido
+19:11:2022.14:24:18 EV 127.0.0.1 ficheiro de STs lido
+19:11:2022.14:24:18 EV 127.0.0.1 criado ficheiro de logs
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:24:18 EV 127.0.0.1 ficheiro de dados lido
+19:11:2022.14:24:38 QR ('127.0.0.1', 55789) 56655,Q+R,0,0,0,0;example.com.,MX;
+19:11:2022.14:24:38 RP ('127.0.0.1', 55789) 56655,0,2,4,6;example.com.,MX; example.com. MX mx1.example.com 86400 10example.com. MX mx2.example.com 86400 20example.com. NS ns1.example.com. 86400 example.com. NS ns2.example.com. 86400 example.com. NS ns3.example.com. 86400 example.com. NS sp.smaller.example.com. 86400                         
+19:11:2022.14:25:25 ZT 193.123.5.189 SP
+# Log File for DNS server/resolver
+19:11:2022.14:33:33 ST 127.0.0.1 53 2000 debug
+19:11:2022.14:33:33 EV 127.0.0.1 ficheiro de configuração lido
+19:11:2022.14:33:33 EV 127.0.0.1 ficheiro de STs lido
+19:11:2022.14:33:33 EV 127.0.0.1 criado ficheiro de logs
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:33:33 EV 127.0.0.1 ficheiro de dados lido
+19:11:2022.14:33:55 ZT 193.123.5.189 SP
+# Log File for DNS server/resolver
+19:11:2022.14:34:52 ST 127.0.0.1 53 2000 debug
+19:11:2022.14:34:52 EV 127.0.0.1 ficheiro de configuração lido
+19:11:2022.14:34:52 EV 127.0.0.1 ficheiro de STs lido
+19:11:2022.14:34:52 EV 127.0.0.1 criado ficheiro de logs
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:34:52 EV 127.0.0.1 ficheiro de dados lido
+19:11:2022.14:35:10 ZT 193.123.5.189 SP
+19:11:2022.14:36:37 QR ('127.0.0.1', 63226) 62313,Q+R,0,0,0,0;example.com.,MX;
+19:11:2022.14:36:37 RP ('127.0.0.1', 63226) 62313,0,2,4,6;example.com.,MX; example.com. MX mx1.example.com 86400 10example.com. MX mx2.example.com 86400 20example.com. NS ns1.example.com. 86400 example.com. NS ns2.example.com. 86400 example.com. NS ns3.example.com. 86400 example.com. NS sp.smaller.example.com. 86400                         
+# Log File for DNS server/resolver
+19:11:2022.14:37:52 ST 127.0.0.1 53 2000 debug
+19:11:2022.14:37:52 EV 127.0.0.1 ficheiro de configuração lido
+19:11:2022.14:37:52 EV 127.0.0.1 ficheiro de STs lido
+19:11:2022.14:37:52 EV 127.0.0.1 criado ficheiro de logs
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:37:52 EV 127.0.0.1 ficheiro de dados lido
+19:11:2022.14:38:24 ZT 193.123.5.189 SP
+19:11:2022.14:40:49 ZT 193.123.5.189 SP
+# Log File for DNS server/resolver
+19:11:2022.14:46:52 ST 127.0.0.1 53 2000 debug
+19:11:2022.14:46:52 EV 127.0.0.1 ficheiro de configuração lido
+19:11:2022.14:46:52 EV 127.0.0.1 ficheiro de STs lido
+19:11:2022.14:46:52 EV 127.0.0.1 criado ficheiro de logs
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 Registada entrada na cache do SP
+19:11:2022.14:46:52 EV 127.0.0.1 ficheiro de dados lido
+19:11:2022.14:47:18 ZT 193.123.5.189 SP
+19:11:2022.14:48:10 QR ('127.0.0.1', 61824) 43226,Q+R,0,0,0,0;example.com.,MX;
+19:11:2022.14:48:10 RP ('127.0.0.1', 61824) 43226,0,2,4,6;example.com.,MX; example.com. MX mx1.example.com 86400 10example.com. MX mx2.example.com 86400 20example.com. NS ns1.example.com. 86400 example.com. NS ns2.example.com. 86400 example.com. NS ns3.example.com. 86400 example.com. NS sp.smaller.example.com. 86400                         

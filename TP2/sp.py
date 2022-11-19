@@ -12,7 +12,7 @@ class SP:
         self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o seu ficheiro config
         self.dom.parseFicheiroConfig()
         self.dom.parseFicheiroListaST()
-        self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll)
+        self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll, sys.argv[4])
         self.logs.ST(sys.argv[2], sys.argv[3], sys.argv[4])
         self.logs.EV('ficheiro de configuração lido')
         self.logs.EV('ficheiro de STs lido')
@@ -34,16 +34,14 @@ class SP:
         respQuery += headerFields[0]
 
         nameDom = self.dom.name + '.'
-        print("Nome Domínio: " + nameDom)
+
         # Flags:
         # Como se trata do SP do domínio em questão então é autoritativo
         if queryInfo[0] == nameDom:
             headerFields[1] += '+A'
             
         # Response Code:
-        print(queryInfo)
         index = self.cache.procuraEntradaValid(1, queryInfo[0], queryInfo[1])
-        print("Index: "+ str(index))
         if index < self.cache.nrEntradas and index >= 0:
             extraValues = ''
             responseCode = '0'
@@ -86,26 +84,23 @@ class SP:
         respQuery += respValues
         respQuery += authorities
         respQuery += extraValues 
-        print(respQuery)
         return respQuery
 
     def recebeQuerys(self):
         msg, add = self.socketUDP.recvfrom(1024)
-        self.logs.QR_QE(true, add, msg.decode('utf-8'))
+        self.logs.QR_QE(True, str(add), msg.decode('utf-8'))
         msgResp = self.geraRespQuery(msg.decode('utf-8'))
         self.socketUDP.sendto(msgResp.encode('utf-8'), add)
-        self.logs.RP_RR(false, add, msgResp)
+        self.logs.RP_RR(False, str(add), msgResp)
 
     def transferenciaZona(self, connection, address):
         # Na transferência de zona o cliente é o SS e o servidor é o SP
         # Primeiro recebe o nome completo do domínio
         address = "193.123.5.189" # Isto é só para puder testar (mais tarde vai sair)
         nomeDom = connection.recv(1024).decode('utf-8')
-        print("Nome: " + nomeDom)
         nome = self.dom.name + "."
 
         if nomeDom != nome : # Nome de domínio inválido
-            print("Dominio inválido")
             self.logs.EZ(address,'SP')
             connection.close()
             return False
@@ -119,7 +114,6 @@ class SP:
             
         # Quem está a pedir a transferência de zona não tem permissão para receber uma cópia da base de dados
         if autorizacao == False:
-            print("Não tem autorização")
             connection.close()
             self.logs.EZ(address,'SP')
             return False
@@ -128,7 +122,6 @@ class SP:
         connection.sendall(str(nrEntradas).encode('utf-8'))
         resposta = connection.recv(1024).decode('utf-8')
         if resposta != str(nrEntradas):
-            print("Número de entradas não foi aceite")
             connection.close()
             self.logs.EZ(address,'SP')
             return False
@@ -196,11 +189,13 @@ class SP:
             splited = re.split(' ', line[:-1]) 
             if splited[0] != '#':
                 if len(splited) >= 5:
+                    self.logs.EV("Registada entrada na cache do SP")
                     self.cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE', splited[4])
                 else:
+                    self.logs.EV("Registada entrada na cache do SP")
                     self.cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE')
         
         f.close()
 
 sp = SP()
-print(sp.dom)
+sp.recebeQuerys()

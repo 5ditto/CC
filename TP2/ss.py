@@ -4,13 +4,14 @@ import sys
 from dominio import Dominio
 from logs import Logs
 from cache import Cache
+import threading
 
 class SS:
 
     def __init__(self):
         self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o ficheiro config
         self.dom.parseFicheiroConfig()
-        self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll)
+        self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll, sys.argv[4])
         self.logs.ST(sys.argv[2], sys.argv[3], sys.argv[4])
         self.logs.EV('ficheiro de configuração lido')
         self.logs.EV('criado ficheiro de logs')
@@ -18,6 +19,7 @@ class SS:
         self.versaoDB = -1
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socketUDP.bind(("127.0.0.1", 3333))
+        threading.Thread(target=self.recebeQuerys, args=()).start() # Thread que vai estar sempre à espera de novas querys de um CL
     
     def encontraNomeTTLDom(self, lista):
         name = ''
@@ -63,10 +65,10 @@ class SS:
         #s.connect(('127.0.0.1', 3333))
         # Primeiro enviar o nome completo do domínio
         msg = self.dom.name + "."
-        print("Domínio: " + msg)
+
         s.sendall(msg.encode('utf-8'))
         nrEntradas = s.recv(1024) # recebe o número de entradas da db
-        print(str(nrEntradas))
+
         s.sendall(nrEntradas) # aceita respondendo com o mesmo número que recebeu
         while True:
             parteDb = s.recv(1024).decode('utf-8')
@@ -91,7 +93,7 @@ class SS:
             s.sendall(msg.encode('utf-8'))
 
             versao = s.recv(1024).decode('utf-8')
-            print(versao)
+
             if versao != self.versaoDB:# Base de dados do SS está desatualizada
                 s.sendall('continua'.encode('utf-8'))
                 dbString = self.transferenciaZona(s)
@@ -113,18 +115,16 @@ class SS:
         respQuery += headerFields[0]
 
         nameDom = self.dom.name + '.'
-        print("Nome Domínio: " + nameDom)
+
         # Flags:
         # Como se trata do SP do domínio em questão então é autoritativo
         if queryInfo[0] == nameDom:
             headerFields[1] += '+A'
             
         # Response Code:
-        print(queryInfo)
+        extraValues = ''
         index = self.cache.procuraEntradaValid(1, queryInfo[0], queryInfo[1])
-        print("Index: "+ str(index))
         if index < self.cache.nrEntradas and index >= 0:
-            extraValues = ''
             responseCode = '0'
             respQuery += "," + responseCode
             respValues = ''
@@ -164,17 +164,16 @@ class SS:
         respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + "; "
         respQuery += respValues
         respQuery += authorities
-        respQuery += extraValues 
-        print(respQuery)
+        respQuery += extraValues
         return respQuery
 
     def recebeQuerys(self):
-        msg, add = self.socketUDP.recvfrom(1024)
-        self.logs.QR_QE(true, add, msg.decode('utf-8'))
-        msgResp = self.geraRespQuery(msg.decode('utf-8'))
-        self.socketUDP.sendto(msgResp.encode('utf-8'), add)
-        self.logs.RP_RR(false, add, msgResp)
+        while True:
+            msg, add = self.socketUDP.recvfrom(1024)
+            self.logs.QR_QE(True, str(add), msg.decode('utf-8'))
+            msgResp = self.geraRespQuery(msg.decode('utf-8'))
+            self.socketUDP.sendto(msgResp.encode('utf-8'), add)
+            self.logs.RP_RR(False, str(add), msgResp)
 
 ss = SS()
-ss.verificaVersaoDB()
-ss.recebeQuerys()
+ss.verificaVersaoDB() # Inicia o processo da transferência de zona
