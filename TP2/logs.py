@@ -59,7 +59,11 @@ class Logs:
 
     def EV(self, eventType, msg=''):
         logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
-        string = "EV 127.0.0.1 " + eventType + " " + msg 
+        
+        if msg:
+            string = "EV 127.0.0.1 " + eventType + " " + msg 
+        else:
+            string = "EV 127.0.0.1 " + eventType
         logging.info(string)
 
     def ER(self, endereco):

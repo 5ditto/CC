@@ -10,12 +10,14 @@ class SS:
     def __init__(self):
         self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o ficheiro config
         self.dom.parseFicheiroConfig()
-        self.cache = Cache()
         self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll)
+        self.logs.ST(sys.argv[2], sys.argv[3], sys.argv[4])
+        self.logs.EV('ficheiro de configuração lido')
+        self.logs.EV('criado ficheiro de logs')
+        self.cache = Cache()
         self.versaoDB = -1
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socketUDP.bind(("127.0.0.1", 3333))
-        self.logs.ST(sys.argv[2], sys.argv[3], sys.argv[4])
     
     def encontraNomeTTLDom(self, lista):
         name = ''
@@ -71,7 +73,7 @@ class SS:
             if not parteDb:
                 # Faz o parse da string final da transferencia de zona para a "cache" do SS
                 self.constroiCacheSS(dbString)
-                self.logs.ZT(s,"SS"," "," ")
+                self.logs.ZT(self.dom.endSP,"SS")
                 return dbString
             dbString += parteDb
 
@@ -168,8 +170,10 @@ class SS:
 
     def recebeQuerys(self):
         msg, add = self.socketUDP.recvfrom(1024)
+        self.logs.QR_QE(true, add, msg.decode('utf-8'))
         msgResp = self.geraRespQuery(msg.decode('utf-8'))
         self.socketUDP.sendto(msgResp.encode('utf-8'), add)
+        self.logs.RP_RR(false, add, msgResp)
 
 ss = SS()
 ss.verificaVersaoDB()

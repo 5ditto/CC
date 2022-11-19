@@ -1,4 +1,3 @@
-# Podemos considerar isto o SP
 import re
 import sys
 import socket 
@@ -12,13 +11,18 @@ class SP:
     def __init__(self):
         self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o seu ficheiro config
         self.dom.parseFicheiroConfig()
+        self.dom.parseFicheiroListaST()
+        self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll)
+        self.logs.ST(sys.argv[2], sys.argv[3], sys.argv[4])
+        self.logs.EV('ficheiro de configuração lido')
+        self.logs.EV('ficheiro de STs lido')
+        self.logs.EV('criado ficheiro de logs')
         self.cache = Cache()
         self.parseDB()
-        self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll)
+        self.logs.EV('ficheiro de dados lido')
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socketUDP.bind(("127.0.0.1",12345))
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.logs.ST(sys.argv[2], sys.argv[3], sys.argv[4])
         threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
 
     def geraRespQuery(self, msgQuery): 
@@ -87,8 +91,10 @@ class SP:
 
     def recebeQuerys(self):
         msg, add = self.socketUDP.recvfrom(1024)
+        self.logs.QR_QE(true, add, msg.decode('utf-8'))
         msgResp = self.geraRespQuery(msg.decode('utf-8'))
         self.socketUDP.sendto(msgResp.encode('utf-8'), add)
+        self.logs.RP_RR(false, add, msgResp)
 
     def transferenciaZona(self, connection, address):
         # Na transferência de zona o cliente é o SS e o servidor é o SP
@@ -138,7 +144,6 @@ class SP:
         reposta = respostaDb.encode('utf-8')
         self.logs.ZT(address,'SP')
         connection.sendall(reposta)
-        print("Acabou")
         connection.close()
 
     def devolveVersaoDB(self, connection, address):
