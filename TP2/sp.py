@@ -96,12 +96,13 @@ class SP:
     def transferenciaZona(self, connection, address):
         # Na transferência de zona o cliente é o SS e o servidor é o SP
         # Primeiro recebe o nome completo do domínio
-        address = "193.123.5.189" # Isto é só para puder testar (mais tarde vai sair)
+        ip, porta = address
         nomeDom = connection.recv(1024).decode('utf-8')
         nome = self.dom.name + "."
 
         if nomeDom != nome : # Nome de domínio inválido
-            self.logs.EZ(address,'SP')
+            print("Nome dominio errado!")
+            self.logs.EZ(ip, str(porta),'SP')
             connection.close()
             return False
 
@@ -114,8 +115,9 @@ class SP:
             
         # Quem está a pedir a transferência de zona não tem permissão para receber uma cópia da base de dados
         if autorizacao == False:
+            print("Sem autorização")
             connection.close()
-            self.logs.EZ(address,'SP')
+            self.logs.EZ(ip, str(porta),'SP')
             return False
 
         nrEntradas = self.cache.nrEntradas
@@ -123,7 +125,7 @@ class SP:
         resposta = connection.recv(1024).decode('utf-8')
         if resposta != str(nrEntradas):
             connection.close()
-            self.logs.EZ(address,'SP')
+            self.logs.EZ(ip, str(porta),'SP')
             return False
 
         # Mandar cada linha da base de dados para o SS
@@ -155,7 +157,7 @@ class SP:
     # Função que espera por novas ligações TCP ao SP e depois chama a função transferênciaZona para as tratar
     def conexaoTCP(self):
         endereco = '127.0.0.1'
-        porta = 5555
+        porta = 12345
         self.socketTCP.bind((endereco, porta))
         self.socketTCP.listen()
         

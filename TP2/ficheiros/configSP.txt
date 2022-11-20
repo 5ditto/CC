@@ -1,12 +1,12 @@
 # Configuration file for primary server for example.com
-example.com DB /home/core/Desktop/CCTP2/ficheiros/baseDadosSP.txt
-# example.com DB C:\Users\smgon\Desktop\CC\TP2\ficheiros\baseDadosSP.txt
+# example.com DB /home/core/Desktop/CCTP2/ficheiros/baseDadosSP.txt
+example.com DB C:\Users\smgon\Desktop\CC\TP2\ficheiros\baseDadosSP.txt
 example.com SS 10.0.0.11
 example.com SS 10.0.0.13
 example.com DD 127.0.0.1
-# example.com LG C:\Users\smgon\Desktop\CC\TP2\ficheiros\logsSP.log
-example.com LG /home/core/Desktop/CCTP2/ficheiros/logsSP.log
-# all LG C:\Users\smgon\Desktop\CC\TP2\ficheiros\logsSPAll.log
-all LG /home/core/Desktop/CCTP2/ficheiros/logsSPAll.log
-root ST /home/core/Desktop/CCTP2/ficheiros/sts.txt
-# root ST C:\Users\smgon\Desktop\CC\TP2\ficheiros\sts.txt
+example.com LG C:\Users\smgon\Desktop\CC\TP2\ficheiros\logsSP.log
+# example.com LG /home/core/Desktop/CCTP2/ficheiros/logsSP.log
+all LG C:\Users\smgon\Desktop\CC\TP2\ficheiros\logsSPAll.log
+# all LG /home/core/Desktop/CCTP2/ficheiros/logsSPAll.log
+# root ST /home/core/Desktop/CCTP2/ficheiros/sts.txt
+root ST C:\Users\smgon\Desktop\CC\TP2\ficheiros\sts.txt

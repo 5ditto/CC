@@ -1,4 +1,5 @@
 import logging
+import re
 # Aspetos positivos : data está bem :)
 
 # Tipos de Entradas que existem
@@ -67,7 +68,7 @@ class Logs:
 
     def EV(self, eventType, msg=''):
         logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
-        
+
         if msg:
             string = "EV 127.0.0.1 " + eventType + " " + msg 
         else:
@@ -85,9 +86,10 @@ class Logs:
         if self.modo == 'debug':
             print(string)
 
-    def EZ(self, endereco, role):
+    def EZ(self, ip, porta, role):
         logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
-        string = "EZ " + endereco + " " +  role
+
+        string = "EZ " + ip + ":" + porta + " " + role
 
         logging.info(string)
         if self.modo == 'debug':
