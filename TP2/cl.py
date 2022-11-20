@@ -15,6 +15,7 @@ class CL:
         splited = re.split(":", sys.argv[1])
         self.ipServer = splited[0]
         self.porta = splited[1]
+        print("IpServer: " + self.ipServer + ", porta: " + self.porta)
         self.name = sys.argv[2]
         self.typeValue = sys.argv[3]
         if len(sys.argv) < 5:

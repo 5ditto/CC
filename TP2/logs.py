@@ -54,13 +54,13 @@ class Logs:
         if self.modo == 'debug':
             print(string)
 
-    def ZT(self, endereco, role, time='', totalbytes=''):
+    def ZT(self, ip, porta, role = '', time = '', totalbytes = ''):
         logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
         
         if time == '' and totalbytes == '':
-            string = "ZT " + endereco + " " + role
+            string = "ZT " + ip + ":" + porta + " " + role
         else:
-            string = endereco + " " + role + " " + time + " " + totalbytes
+            string = "ZT " + ip + ":" + porta + " " + role + " " + time + " " + totalbytes
 
         logging.info(string)
         if self.modo == 'debug':

@@ -21,7 +21,7 @@ class SP:
         self.parseDB()
         self.logs.EV('ficheiro de dados lido')
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socketUDP.bind(("127.0.0.1",12345))
+        self.socketUDP.bind((self.dom.endIp, self.dom.endPorta))
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
 
@@ -101,21 +101,20 @@ class SP:
         nome = self.dom.name + "."
 
         if nomeDom != nome : # Nome de domínio inválido
-            print("Nome dominio errado!")
+
             self.logs.EZ(ip, str(porta),'SP')
             connection.close()
             return False
 
         autorizacao = False
-        for ip in self.dom.endSS:
+        for ipSS in self.dom.endSS:
             # Quem está a pedir a transferência de zona tem permissão para receber uma cópia da base de dados
-            if ip == address:
+            if ipSS == ip:
                 autorizacao = True
                 break
-            
+
         # Quem está a pedir a transferência de zona não tem permissão para receber uma cópia da base de dados
         if autorizacao == False:
-            print("Sem autorização")
             connection.close()
             self.logs.EZ(ip, str(porta),'SP')
             return False
@@ -137,13 +136,13 @@ class SP:
             i += 1
         f.close()
         reposta = respostaDb.encode('utf-8')
-        self.logs.ZT(address,'SP')
+        self.logs.ZT(ip, str(porta), 'SP')
         connection.sendall(reposta)
         connection.close()
 
     def devolveVersaoDB(self, connection, address):
-
         msg = connection.recv(1024).decode('utf-8')
+
         if msg == 'VersaoDB':
             name = self.dom.name + '.'
             index = self.cache.procuraEntradaValid(1, name, 'SOASERIAL')
@@ -158,7 +157,7 @@ class SP:
     def conexaoTCP(self):
         endereco = '127.0.0.1'
         porta = 12345
-        self.socketTCP.bind((endereco, porta))
+        self.socketTCP.bind((self.dom.endIp, self.dom.endPorta))
         self.socketTCP.listen()
         
         while True:

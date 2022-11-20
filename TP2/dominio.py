@@ -4,6 +4,8 @@ class Dominio:
 
     def __init__(self, ficheiroConfig):
         self.name = ''
+        self.endIp = ''
+        self.endPorta = ''
         self.ficheiroConfig = ficheiroConfig
         self.ficheiroDb = ''
         self.ficheiroSTs = ''
@@ -25,6 +27,10 @@ class Dominio:
                     self.ficheiroLogsAll = lista[2].replace('\n', '')
                 elif lista[0] == 'root':
                     self.ficheiroSTs = lista[2].replace('\n', '')
+                elif lista[0] == 'endereco':
+                    x = re.split(":", lista[1])
+                    self.endIp = x[0]
+                    self.endPorta = int(x[1])
                 else:
                     self.name = lista[0]
                     if lista[1] == 'DB':

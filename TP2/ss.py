@@ -18,7 +18,8 @@ class SS:
         self.cache = Cache()
         self.versaoDB = -1
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socketUDP.bind(("127.0.0.1", 3333))
+        print("Endereço: " + self.dom.endIp + ":" + str(self.dom.endPorta))
+        self.socketUDP.bind((self.dom.endIp, self.dom.endPorta))
         threading.Thread(target=self.recebeQuerys, args=()).start() # Thread que vai estar sempre à espera de novas querys de um CL
     
     def encontraNomeTTLDom(self, lista):
@@ -60,9 +61,7 @@ class SS:
     # o SS termina a conexão TCP e desiste da transferência de zona. Deve tentar outra vez após um intervalo de tempo igual a SOARETRY. 
     def transferenciaZona(self, s):
         dbString = ''
-        #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        #s.connect(('127.0.0.1', 3333))
         # Primeiro enviar o nome completo do domínio
         msg = self.dom.name + "."
 
@@ -73,9 +72,6 @@ class SS:
         while True:
             parteDb = s.recv(1024).decode('utf-8')
             if not parteDb:
-                # Faz o parse da string final da transferencia de zona para a "cache" do SS
-                self.constroiCacheSS(dbString)
-                self.logs.ZT(self.dom.endSP,"SS")
                 return dbString
             dbString += parteDb
 
@@ -94,11 +90,19 @@ class SS:
             s.sendall(msg.encode('utf-8'))
 
             versao = s.recv(1024).decode('utf-8')
+            print("Versao atual da BD: " + versao)
 
-            if versao != self.versaoDB:# Base de dados do SS está desatualizada
+            if int(versao) != self.versaoDB:# Base de dados do SS está desatualizada
+                print("Continua")
                 s.sendall('continua'.encode('utf-8'))
                 dbString = self.transferenciaZona(s)
+                # Faz o parse da string final da transferencia de zona para a "cache" do SS
+                self.constroiCacheSS(dbString)
+                x = re.split(":", self.dom.endSP)
+                self.logs.ZT(x[0], x[1], 'SS')
+                self.versaoDB = int(versao)
             else:
+                print("Nao continua")
                 s.sendall('termina'.encode('utf-8'))
                 s.close()
         except Exception as ex: 

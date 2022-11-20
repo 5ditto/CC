@@ -1,20 +1,20 @@
-# DNS database file for domain example.com
+# DNS database file for domain classico.lon3r
 # It also includes a pointer to the primary server
-# of the smaller.example.com subdomain
-@ DEFAULT example.com.
+# of the smaller.classico.lon3r subdomain
+@ DEFAULT classico.lon3r.
 TTL DEFAULT 86400
-@ SOASP ns1.example.com. TTL
-@ SOAADMIN dns\.admin.example.com. TTL
+@ SOASP ns1.classico.lon3r. TTL
+@ SOAADMIN dns\.admin.classico.lon3r. TTL
 @ SOASERIAL 0117102022 TTL
 @ SOAREFRESH 14400 TTL
 @ SOARETRY 3600 TTL
 @ SOAEXPIRE 604800 TTL
-@ NS ns1.example.com. TTL
-@ NS ns2.example.com. TTL
-@ NS ns3.example.com. TTL
-Smaller.@ NS sp.smaller.example.com.
-@ MX mx1.example.com TTL 10
-@ MX mx2.example.com TTL 20
+@ NS ns1.classico.lon3r. TTL
+@ NS ns2.classico.lon3r. TTL
+@ NS ns3.classico.lon3r. TTL
+Smaller.@ NS sp.smaller.classico.lon3r.
+@ MX mx1.classico.lon3r. TTL 10
+@ MX mx2.classico.lon3r. TTL 20
 ns1 A 193.136.130.250 TTL
 ns2 A 193.137.100.250 TTL
 ns3 A 193.136.130.251 TTL

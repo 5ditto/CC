@@ -1,9 +1,11 @@
-# Configuration file for secundary server for example.com
-example.com SP 10.0.0.10:5555
-example.com SS 10.0.0.17
-example.com DD 127.0.0.1
-example.com LG /home/core/Desktop/CCTP2/ficheiros/logsSS2.log
-# example.com LG C:\Users\smgon\Desktop\CC\TP2\ficheiros\logsSS.log
+# Configuration file for secundary server for lon3r.classico
+endereco 10.0.15.10:12345
+classico.lon3r SP 10.0.14.10:12345
+classico.lon3r SS 10.0.24.10
+classico.lon3r DD 10.0.14.20
+classico.lon3r DD 10.0.15.11
+classico.lon3r LG /home/core/Desktop/CCTP2/ficheiros/logsSS2.log
+# classico.lon3r LG C:\Users\smgon\Desktop\CC\TP2\ficheiros\logsSS.log
 all LG /home/core/Desktop/CCTP2/ficheiros/logsSS2All.log
 # all LG C:\Users\smgon\Desktop\CC\TP2\ficheiros\logsSSAll.log
 root ST /home/core/Desktop/CCTP2/ficheiros/sts.txt
