@@ -18,7 +18,7 @@ Classico.@ NS sp.classico.lon3r.
 ns1 A 193.136.130.250 TTL
 ns2 A 193.137.100.250 TTL
 ns3 A 193.136.130.251 TTL
-sp.classico A 193.140.90.11 TTL
+sp.classico A 10.0.16.10:53 TTL
 mx1 A 193.136.130.200 TTL
 mx2 A 193.136.130.201 TTL
 www A 193.136.130.80 TTL 200
