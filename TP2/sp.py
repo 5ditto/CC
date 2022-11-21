@@ -9,11 +9,12 @@ import threading
 class SP:
 
     def __init__(self):
+        self.portaAtendimento = sys.argv[2]
         self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o seu ficheiro config
         self.dom.parseFicheiroConfig()
         self.dom.parseFicheiroListaST()
         self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll, sys.argv[4])
-        self.logs.ST(sys.argv[2], sys.argv[3], sys.argv[4])
+        self.logs.ST(self.portaAtendimento, sys.argv[3], sys.argv[4])
         self.logs.EV('ficheiro de configuração lido')
         self.logs.EV('ficheiro de STs lido')
         self.logs.EV('criado ficheiro de logs')
@@ -21,7 +22,7 @@ class SP:
         self.parseDB()
         self.logs.EV('ficheiro de dados lido')
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socketUDP.bind((self.dom.endIp, self.dom.endPorta))
+        self.socketUDP.bind(('', int(self.portaAtendimento)))
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
 
@@ -157,7 +158,7 @@ class SP:
     def conexaoTCP(self):
         endereco = '127.0.0.1'
         porta = 12345
-        self.socketTCP.bind((self.dom.endIp, self.dom.endPorta))
+        self.socketTCP.bind(('', int(self.portaAtendimento)))
         self.socketTCP.listen()
         
         while True:

@@ -9,17 +9,18 @@ import threading
 class SS:
 
     def __init__(self):
+        self.portaAtendimento = sys.argv[2]
         self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o ficheiro config
         self.dom.parseFicheiroConfig()
         self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll, sys.argv[4])
-        self.logs.ST(sys.argv[2], sys.argv[3], sys.argv[4])
+        self.logs.ST(self.portaAtendimento, sys.argv[3], sys.argv[4])
         self.logs.EV('ficheiro de configuração lido')
         self.logs.EV('criado ficheiro de logs')
         self.cache = Cache()
         self.versaoDB = -1
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         print("Endereço: " + self.dom.endIp + ":" + str(self.dom.endPorta))
-        self.socketUDP.bind((self.dom.endIp, self.dom.endPorta))
+        self.socketUDP.bind(('', int(self.portaAtendimento)))
         threading.Thread(target=self.recebeQuerys, args=()).start() # Thread que vai estar sempre à espera de novas querys de um CL
     
     def encontraNomeTTLDom(self, lista):

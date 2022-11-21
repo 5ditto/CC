@@ -1,5 +1,4 @@
 # Configuration file for primary server for classico.lon3r
-endereco 10.0.14.10:12345
 classico.lon3r DB /home/core/Desktop/CCTP2/ficheiros/baseDadosSP.txt
 # classico.lon3r DB C:\Users\smgon\Desktop\CC\TP2\ficheiros\baseDadosSP.txt
 classico.lon3r SS 10.0.24.10
