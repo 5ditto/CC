@@ -1,9 +1,9 @@
 # Configuration file for primary server for classico.lon3r
 classico.lon3r DB /home/core/Desktop/CCTP2/ficheiros/baseDadosSP.txt
 # classico.lon3r DB C:\Users\smgon\Desktop\CC\TP2\ficheiros\baseDadosSP.txt
-classico.lon3r SS 10.0.24.10
+classico.lon3r SS 10.0.14.11
 classico.lon3r SS 10.0.15.10
-classico.lon3r DD 10.0.14.20
+classico.lon3r DD 10.0.16.20
 classico.lon3r DD 10.0.15.11
 # classico.lon3r LG C:\Users\smgon\Desktop\CC\TP2\ficheiros\logsSP.log
 classico.lon3r LG /home/core/Desktop/CCTP2/ficheiros/logsSP.log
