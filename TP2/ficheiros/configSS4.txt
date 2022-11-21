@@ -1,0 +1,8 @@
+# Configuration file for secundary server for lon3r.classico
+classico.lon3r SP 10.0.16.10:53
+classico.lon3r SS 10.0.15.10
+classico.lon3r DD 10.0.16.20
+classico.lon3r DD 10.0.15.11
+classico.lon3r LG /home/core/Desktop/CCTP2/ficheiros/logsSS4.log
+all LG /home/core/Desktop/CCTP2/ficheiros/logsSS4All.log
+root ST /home/core/Desktop/CCTP2/ficheiros/sts.txt

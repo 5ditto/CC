@@ -1,0 +1,9 @@
+# Configuration file for primary server for johny
+johny DB /home/core/Desktop/CCTP2/ficheiros/baseDadosSP4.txt
+johny SS 10.0.25.10
+johny SS 10.0.20.10
+johny DD 10.0.19.20
+johny DD 10.0.20.11
+johny LG /home/core/Desktop/CCTP2/ficheiros/logsSP4.log
+all LG /home/core/Desktop/CCTP2/ficheiros/logsSP4All.log
+root ST /home/core/Desktop/CCTP2/ficheiros/sts.txt

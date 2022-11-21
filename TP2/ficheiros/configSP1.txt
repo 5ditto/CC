@@ -1,0 +1,9 @@
+# Configuration file for primary server for lon3r
+lon3r DB /home/core/Desktop/CCTP2/ficheiros/baseDadosSP1.txt
+lon3r SS 10.0.13.10
+lon3r SS 10.0.12.11
+lon3r DD 10.0.18.20
+lon3r DD 10.0.13.11
+lon3r LG /home/core/Desktop/CCTP2/ficheiros/logsSP1.log
+all LG /home/core/Desktop/CCTP2/ficheiros/logsSP1All.log
+root ST /home/core/Desktop/CCTP2/ficheiros/sts.txt

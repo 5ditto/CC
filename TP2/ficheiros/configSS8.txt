@@ -1,0 +1,8 @@
+# Configuration file for secundary server for johny
+johny SP 10.0.19.10:53
+johny SS 10.0.25.10
+johny DD 10.0.19.20
+johny DD 10.0.20.11
+johny LG /home/core/Desktop/CCTP2/ficheiros/logsSS8.log
+all LG /home/core/Desktop/CCTP2/ficheiros/logsSS8All.log
+root ST /home/core/Desktop/CCTP2/ficheiros/sts.txt

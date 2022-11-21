@@ -1,0 +1,9 @@
+# Configuration file for primary server for dubai.johny
+dubai.johny DB /home/core/Desktop/CCTP2/ficheiros/baseDadosSP3.txt
+dubai.johny SS 10.0.24.10
+dubai.johny SS 10.0.26.10
+dubai.johny DD 10.0.17.20
+dubai.johny DD 10.0.24.11
+dubai.johny LG /home/core/Desktop/CCTP2/ficheiros/logsSP3.log
+all LG /home/core/Desktop/CCTP2/ficheiros/logsSP3All.log
+root ST /home/core/Desktop/CCTP2/ficheiros/sts.txt
