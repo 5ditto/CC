@@ -11,11 +11,10 @@ import random
 class CL:
 
     def __init__(self):
-        self.sUDp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         splited = re.split(":", sys.argv[1])
         self.ipServer = splited[0]
         self.porta = splited[1]
-        print("IpServer: " + self.ipServer + ", porta: " + self.porta)
         self.name = sys.argv[2]
         self.typeValue = sys.argv[3]
         if len(sys.argv) < 5:
@@ -32,8 +31,8 @@ class CL:
 
     def queryCL(self):
         msg = self.geraMsgQuery()
-        self.sUDp.sendto(msg.encode('utf-8'), (self.ipServer, int(self.porta)))
-        RespMsg, add = self.sUDp.recvfrom(1024)
+        self.sUDP.sendto(msg.encode('utf-8'), (self.ipServer, int(self.porta)))
+        RespMsg, add = self.sUDP.recvfrom(1024)
         print(str(RespMsg))
 
 cl = CL()

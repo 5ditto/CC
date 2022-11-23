@@ -19,7 +19,6 @@ class SS:
         self.cache = Cache()
         self.versaoDB = -1
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        print("Endereço: " + self.dom.endIp + ":" + str(self.dom.endPorta))
         self.socketUDP.bind(('', int(self.portaAtendimento)))
         threading.Thread(target=self.recebeQuerys, args=()).start() # Thread que vai estar sempre à espera de novas querys de um CL
     
@@ -91,10 +90,8 @@ class SS:
             s.sendall(msg.encode('utf-8'))
 
             versao = s.recv(1024).decode('utf-8')
-            print("Versao atual da BD: " + versao)
 
             if int(versao) != self.versaoDB:# Base de dados do SS está desatualizada
-                print("Continua")
                 s.sendall('continua'.encode('utf-8'))
                 dbString = self.transferenciaZona(s)
                 # Faz o parse da string final da transferencia de zona para a "cache" do SS
@@ -103,7 +100,6 @@ class SS:
                 self.logs.ZT(x[0], x[1], 'SS')
                 self.versaoDB = int(versao)
             else:
-                print("Nao continua")
                 s.sendall('termina'.encode('utf-8'))
                 s.close()
         except Exception as ex: 
@@ -172,6 +168,7 @@ class SS:
         respQuery += authorities
         respQuery += extraValues
         return respQuery
+
 
     def recebeQuerys(self):
         while True:

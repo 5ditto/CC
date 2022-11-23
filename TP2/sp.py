@@ -41,12 +41,11 @@ class SP:
         if queryInfo[0] == nameDom:
             headerFields[1] += '+A'
             
+        extraValues = ''
         # Response Code:
         index = self.cache.procuraEntradaValid(1, queryInfo[0], queryInfo[1])
         if index < self.cache.nrEntradas and index >= 0:
-            extraValues = ''
             responseCode = '0'
-            respQuery += "," + responseCode
             respValues = ''
             nrval = 0
 
@@ -57,9 +56,6 @@ class SP:
                 comp = self.cache.campoValor(index)
                 i = self.cache.procuraEntradaValid(1, comp, 'A')
                 extraValues += self.cache.entrada(i)
-            nrValues = str(nrval)
-
-            respQuery += "," + nrValues
 
         elif queryInfo[0] == nameDom:
             responseCode = '1'
@@ -70,6 +66,8 @@ class SP:
             nrval = 0 
             respValues = ''
 
+        nrValues = str(nrval)
+        respQuery += "," + responseCode + "," + nrValues
         authorities = ''
         nrAutorithies = 0
         listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], 'NS')
@@ -88,11 +86,12 @@ class SP:
         return respQuery
 
     def recebeQuerys(self):
-        msg, add = self.socketUDP.recvfrom(1024)
-        self.logs.QR_QE(True, str(add), msg.decode('utf-8'))
-        msgResp = self.geraRespQuery(msg.decode('utf-8'))
-        self.socketUDP.sendto(msgResp.encode('utf-8'), add)
-        self.logs.RP_RR(False, str(add), msgResp)
+        while True:
+            msg, add = self.socketUDP.recvfrom(1024)
+            self.logs.QR_QE(True, str(add), msg.decode('utf-8'))
+            msgResp = self.geraRespQuery(msg.decode('utf-8'))
+            self.socketUDP.sendto(msgResp.encode('utf-8'), add)
+            self.logs.RP_RR(False, str(add), msgResp)
 
     def transferenciaZona(self, connection, address):
         # Na transferência de zona o cliente é o SS e o servidor é o SP
