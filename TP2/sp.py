@@ -70,7 +70,7 @@ class SP:
         respQuery += "," + responseCode + "," + nrValues
         authorities = ''
         nrAutorithies = 0
-        listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], 'NS')
+        listaIndex = self.cache.todasEntradasValid(1, nameDom, 'NS')
         for index in listaIndex:
             authorities += self.cache.entrada(index)
             nrAutorithies += 1

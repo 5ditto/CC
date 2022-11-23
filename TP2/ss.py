@@ -123,12 +123,11 @@ class SS:
         if queryInfo[0] == nameDom:
             headerFields[1] += '+A'
             
-        # Response Code:
         extraValues = ''
+        # Response Code:
         index = self.cache.procuraEntradaValid(1, queryInfo[0], queryInfo[1])
         if index < self.cache.nrEntradas and index >= 0:
             responseCode = '0'
-            respQuery += "," + responseCode
             respValues = ''
             nrval = 0
 
@@ -139,9 +138,6 @@ class SS:
                 comp = self.cache.campoValor(index)
                 i = self.cache.procuraEntradaValid(1, comp, 'A')
                 extraValues += self.cache.entrada(i)
-            nrValues = str(nrval)
-
-            respQuery += "," + nrValues
 
         elif queryInfo[0] == nameDom:
             responseCode = '1'
@@ -152,9 +148,11 @@ class SS:
             nrval = 0 
             respValues = ''
 
+        nrValues = str(nrval)
+        respQuery += "," + responseCode + "," + nrValues
         authorities = ''
         nrAutorithies = 0
-        listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], 'NS')
+        listaIndex = self.cache.todasEntradasValid(1, nameDom, 'NS')
         for index in listaIndex:
             authorities += self.cache.entrada(index)
             nrAutorithies += 1
@@ -164,9 +162,9 @@ class SS:
         nrAutoridades = str(nrAutorithies)
         nrExtraValues = str(nrval + nrAutorithies)   
         respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + "; "
-        respQuery += respValues 
+        respQuery += respValues
         respQuery += authorities
-        respQuery += extraValues
+        respQuery += extraValues 
         return respQuery
 
 
