@@ -133,11 +133,13 @@ class SS:
 
             listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], queryInfo[1])
             for index in listaIndex:
-                respValues += self.cache.entrada(index)
+                respValues += self.cache.entrada(index)[:-1] + ";"
                 nrval += 1
-                comp = self.cache.campoValor(index)
+                val = self.cache.campoValor(index)
+                comp = val.replace(self.dom.name ,"")[:-2]
+                print("Comp: " + comp)
                 i = self.cache.procuraEntradaValid(1, comp, 'A')
-                extraValues += self.cache.entrada(i)
+                extraValues += self.cache.entrada(i)[:-1] + ";"
 
         elif queryInfo[0] == nameDom:
             responseCode = '1'
@@ -154,11 +156,13 @@ class SS:
         nrAutorithies = 0
         listaIndex = self.cache.todasEntradasValid(1, nameDom, 'NS')
         for index in listaIndex:
-            authorities += self.cache.entrada(index)
+            authorities += self.cache.entrada(index)[:-1] + ";"
             nrAutorithies += 1
-            comp = self.cache.campoValor(index)
+            val = self.cache.campoValor(index)
+            comp = val.replace(self.dom.name ,"")[:-2]
+            print("Comp: " + comp)
             i = self.cache.procuraEntradaValid(1, comp, 'A')
-            extraValues += self.cache.entrada(i)
+            extraValues += self.cache.entrada(i)[:-1] + ";"
         nrAutoridades = str(nrAutorithies)
         nrExtraValues = str(nrval + nrAutorithies)   
         respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + "; "

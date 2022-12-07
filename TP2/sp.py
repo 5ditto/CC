@@ -44,18 +44,19 @@ class SP:
         extraValues = ''
         # Response Code:
         index = self.cache.procuraEntradaValid(1, queryInfo[0], queryInfo[1])
-        if index < self.cache.nrEntradas and index >= 0:
+        if index <= self.cache.nrEntradas and index >= 0:
             responseCode = '0'
             respValues = ''
             nrval = 0
 
             listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], queryInfo[1])
             for index in listaIndex:
-                respValues += self.cache.entrada(index)
+                respValues += self.cache.entrada(index)[:-1] + ";"
                 nrval += 1
-                comp = self.cache.campoValor(index)
+                val = self.cache.campoValor(index)
+                comp = val.replace(self.dom.name ,"")[:-2]
                 i = self.cache.procuraEntradaValid(1, comp, 'A')
-                extraValues += self.cache.entrada(i)
+                extraValues += self.cache.entrada(i)[:-1] + ";"
 
         elif queryInfo[0] == nameDom:
             responseCode = '1'
@@ -72,11 +73,12 @@ class SP:
         nrAutorithies = 0
         listaIndex = self.cache.todasEntradasValid(1, nameDom, 'NS')
         for index in listaIndex:
-            authorities += self.cache.entrada(index)
+            authorities += self.cache.entrada(index)[:-1] + ";"
             nrAutorithies += 1
-            comp = self.cache.campoValor(index)
+            val = self.cache.campoValor(index)
+            comp = val.replace(self.dom.name ,"")[:-2]
             i = self.cache.procuraEntradaValid(1, comp, 'A')
-            extraValues += self.cache.entrada(i)
+            extraValues += self.cache.entrada(i)[:-1] + ";"
         nrAutoridades = str(nrAutorithies)
         nrExtraValues = str(nrval + nrAutorithies)   
         respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + "; "
@@ -186,15 +188,20 @@ class SP:
         f = open(self.dom.ficheiroDb, 'r')
         name, ttl = self.encontraNomeTTLDom(f)
         name = name[:-1]
+
         for line in f:
             splited = re.split(' ', line[:-1]) 
             if splited[0] != '#':
-                if len(splited) >= 5:
-                    self.logs.EV("Registada entrada na cache do SP")
-                    self.cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE', splited[4])
-                else:
-                    self.logs.EV("Registada entrada na cache do SP")
+                if len(splited) >= 5 and splited[0] == '@':
+                        self.cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE', splited[4])
+                elif len(splited) >= 5 and splited[0] != '@':
+                    self.cache.registaAtualizaEntrada(splited[0], splited[1], splited[2], ttl, 'FILE', splited[4])
+                elif len(splited) < 5 and splited[0] == '@':
                     self.cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE')
+                else:
+                    self.cache.registaAtualizaEntrada(splited[0], splited[1], splited[2], ttl, 'FILE')
+            
+            self.logs.EV("Registada entrada na cache do SP")
         
         f.close()
 

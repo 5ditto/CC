@@ -14,6 +14,7 @@ class Dominio:
         self.endSP = ''
         self.endSS = [] # Lista de strings dos ip's dos SS 
         self.endDD = [] # Lista de endereços que têm permissão para fazer queries sobre este domínio (no caso de ser SS ou SP)
+        # No caso de ser um SR representa a lista de servidores que se podem contactar diretamente para fazer querys
         # No caso de ser um SR, a lista representa o endereço para o qual o SR deve encaminhar as queries sempre que não tenha a resposta na sua cache
         self.endSTs = []
 

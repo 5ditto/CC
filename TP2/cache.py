@@ -14,7 +14,7 @@ class Cache:
     def procuraEntradaValid(self, index, name, type):
         now = datetime.now()
         result = -1
-
+        
         while index <= 300:
             if self.cache[index-1][5] == 'OTHERS':
                 diff = now - self.cache[index-1][6]
