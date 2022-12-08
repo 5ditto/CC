@@ -4,6 +4,7 @@ import socket
 from dominio import Dominio
 from logs import Logs
 from cache import Cache
+from query import Query
 import threading
 
 class SP:
@@ -21,79 +22,11 @@ class SP:
         self.cache = Cache()
         self.parseDB()
         self.logs.EV('ficheiro de dados lido')
-        self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socketUDP.bind(('', int(self.portaAtendimento)))
+        self.query = Query(True, self.dom, self.cache, self.logs, self.portaAtendimento)
+        #self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        #self.socketUDP.bind(('', int(self.portaAtendimento)))
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
-
-    def geraRespQuery(self, msgQuery): 
-        respQuery = ''
-        
-        lista = re.split(";", msgQuery)
-        headerFields = re.split(',', lista[0])
-        queryInfo = re.split(',', lista[1])
-        respQuery += headerFields[0]
-
-        nameDom = self.dom.name + '.'
-
-        # Flags:
-        # Como se trata do SP do domínio em questão então é autoritativo
-        if queryInfo[0] == nameDom:
-            headerFields[1] += '+A'
-            
-        extraValues = ''
-        # Response Code:
-        index = self.cache.procuraEntradaValid(1, queryInfo[0], queryInfo[1])
-        if index <= self.cache.nrEntradas and index >= 0:
-            responseCode = '0'
-            respValues = ''
-            nrval = 0
-
-            listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], queryInfo[1])
-            for index in listaIndex:
-                respValues += self.cache.entrada(index)[:-1] + ";"
-                nrval += 1
-                val = self.cache.campoValor(index)
-                comp = val.replace(self.dom.name ,"")[:-2]
-                i = self.cache.procuraEntradaValid(1, comp, 'A')
-                extraValues += self.cache.entrada(i)[:-1] + ";"
-
-        elif queryInfo[0] == nameDom:
-            responseCode = '1'
-            nrval = 0
-            respValues = ''
-        else:
-            responseCode = '2'
-            nrval = 0 
-            respValues = ''
-
-        nrValues = str(nrval)
-        respQuery += "," + responseCode + "," + nrValues
-        authorities = ''
-        nrAutorithies = 0
-        listaIndex = self.cache.todasEntradasValid(1, nameDom, 'NS')
-        for index in listaIndex:
-            authorities += self.cache.entrada(index)[:-1] + ";"
-            nrAutorithies += 1
-            val = self.cache.campoValor(index)
-            comp = val.replace(self.dom.name ,"")[:-2]
-            i = self.cache.procuraEntradaValid(1, comp, 'A')
-            extraValues += self.cache.entrada(i)[:-1] + ";"
-        nrAutoridades = str(nrAutorithies)
-        nrExtraValues = str(nrval + nrAutorithies)   
-        respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + "; "
-        respQuery += respValues
-        respQuery += authorities
-        respQuery += extraValues 
-        return respQuery
-
-    def recebeQuerys(self):
-        while True:
-            msg, add = self.socketUDP.recvfrom(1024)
-            self.logs.QR_QE(True, str(add), msg.decode('utf-8'))
-            msgResp = self.geraRespQuery(msg.decode('utf-8'))
-            self.socketUDP.sendto(msgResp.encode('utf-8'), add)
-            self.logs.RP_RR(False, str(add), msgResp)
 
     def transferenciaZona(self, connection, address):
         # Na transferência de zona o cliente é o SS e o servidor é o SP
@@ -206,4 +139,68 @@ class SP:
         f.close()
 
 sp = SP()
-sp.recebeQuerys()
+sp.query.recebeQuerys()
+
+# def geraRespQuery(self, msgQuery): 
+#     respQuery = ''
+#     
+#     lista = re.split(";", msgQuery)
+#     headerFields = re.split(',', lista[0])
+#     queryInfo = re.split(',', lista[1])
+#     respQuery += headerFields[0]
+#     nameDom = self.dom.name + '.'
+#     # Flags:
+#     # Como se trata do SP do domínio em questão então é autoritativo
+#     if queryInfo[0] == nameDom:
+#         headerFields[1] += '+A'
+#         
+#     extraValues = ''
+#     # Response Code:
+#     index = self.cache.procuraEntradaValid(1, queryInfo[0], queryInfo[1])
+#     if index <= self.cache.nrEntradas and index >= 0:
+#         responseCode = '0'
+#         respValues = ''
+#         nrval = 0
+#         listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], queryInfo[1])
+#         for index in listaIndex:
+#             respValues += self.cache.entrada(index)[:-1] + ";"
+#             nrval += 1
+#             val = self.cache.campoValor(index)
+#             comp = val.replace(self.dom.name ,"")[:-2]
+#             i = self.cache.procuraEntradaValid(1, comp, 'A')
+#             extraValues += self.cache.entrada(i)[:-1] + ";"
+#     elif queryInfo[0] == nameDom:
+#         responseCode = '1'
+#         nrval = 0
+#         respValues = ''
+#     else:
+#         responseCode = '2'
+#         nrval = 0 
+#         respValues = ''
+#     nrValues = str(nrval)
+#     respQuery += "," + responseCode + "," + nrValues
+#     authorities = ''
+#     nrAutorithies = 0
+#     listaIndex = self.cache.todasEntradasValid(1, nameDom, 'NS')
+#     for index in listaIndex:
+#         authorities += self.cache.entrada(index)[:-1] + ";"
+#         nrAutorithies += 1
+#         val = self.cache.campoValor(index)
+#         comp = val.replace(self.dom.name ,"")[:-2]
+#         i = self.cache.procuraEntradaValid(1, comp, 'A')
+#         extraValues += self.cache.entrada(i)[:-1] + ";"
+#     nrAutoridades = str(nrAutorithies)
+#     nrExtraValues = str(nrval + nrAutorithies)   
+#     respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + "; "
+#     respQuery += respValues
+#     respQuery += authorities
+#     respQuery += extraValues 
+#     return respQuery
+
+# def recebeQuerys(self):
+#     while True:
+#         msg, add = self.socketUDP.recvfrom(1024)
+#         self.logs.QR_QE(True, str(add), msg.decode('utf-8'))
+#         msgResp = self.geraRespQuery(msg.decode('utf-8'))
+#         self.socketUDP.sendto(msgResp.encode('utf-8'), add)
+#         self.logs.RP_RR(False, str(add), msgResp)
