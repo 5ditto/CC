@@ -1,0 +1,7 @@
+# Configuration file for resolver server for classico.lon3r
+classico.lon3r DD 10.0.16.10:53
+classico.lon3r DD 10.0.15.10:53
+classico.lon3r DD 10.0.14.11:53
+classico.lon3r LG /home/core/Desktop/CCTP2/ficheiros/logsSP2.log
+all LG /home/core/Desktop/CCTP2/ficheiros/logsSP2All.log
+root ST /home/core/Desktop/CCTP2/ficheiros/sts.txt

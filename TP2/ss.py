@@ -48,8 +48,6 @@ class SS:
             lista[i] = re.split(' ', elem)
             i += 1
 
-        print(lista)
-
         name, ttl = self.encontraNomeTTLDom(lista)
 
         for entrada in lista:

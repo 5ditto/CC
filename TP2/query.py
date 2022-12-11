@@ -5,8 +5,8 @@ import random
 class Query:
 
     # O boolean server indica se a componente se trata de um servidor ou um cliente
-    def __init__(self, server, dom = None, cache = None, logs = None, portaAtendimento = None, ipServer = None
-    , porta = None, recursiva = None, name = None, typeValue = None):
+    def __init__(self, server, dom = None, cache = None, logs = None, portaAtendimento = None, 
+    ipServer = None, porta = None, recursiva = None, name = None, typeValue = None):
         self.server = server
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -105,3 +105,55 @@ class Query:
         self.socketUDP.sendto(msg.encode('utf-8'), (self.ipServer, int(self.porta)))
         respMsg, add = self.socketUDP.recvfrom(1024)
         return (respMsg, add)
+
+    # Cenas do SR
+
+    # Neste método temos que verificar se o SR tem a informação relativa à query na sua Cache
+    # Se tiver, o próprio SR responde à query
+    # Se não, o SR pede a informação ao servidor autoritativo do domínio em questão
+    def recebeQuerysDoCL(self):
+        while True:
+            msg, add = self.socketUDP.recvfrom(1024)
+            self.logs.QR_QE(True, str(add), msg.decode('utf-8'))
+
+            pedido = msg.decode('utf-8')
+            splited1 = re.split(";", pedido)
+            splited2 = re.split(",", splited1[1])
+            dom = splited2[0]
+            typeValue = splited2[1] 
+            
+            index = self.cache.procuraEntradaValid(1,dom,typeValue)
+            if index >= 0 and index <= self.cache.nrEntradas: # Temos a resposta em cache logo é só responder diretamente ao CL
+                respString = self.geraRespQuery(pedido)
+            else: # A resposta à query não está em cache logo vamos ter que perguntar aos servidores
+                nameDom = self.dom.name + "."
+                if nameDom == dom and len(self.dom.endDD) > 0:
+                    splited = re.split(":", self.dom.endDD[0])
+
+                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    s.sendto(msg, (splited[0], int(splited[1]))) 
+                    self.logs.QR_QE(False, self.dom.endDD[0], msg.decode('utf-8'))
+                    resp, add2 = s.recvfrom(1024)
+                    respString = resp.decode('utf-8')
+                    self.logs.RP_RR(True, str(add2), respString)
+                    self.registaRespostaEmCache(respString)
+                else:
+                    # Não existe numa entrada DD sobre o domínio em questão para obter a resposta diretamente, logo vamos perguntar ao ST
+                    return "Ainda não implementado"
+            
+            self.socketUDP.sendto(respString.encode('utf-8'), add)
+            self.logs.RP_RR(False, str(add), resp.decode('utf-8'))
+
+    def registaRespostaEmCache(self, respQuery):
+        lista = re.split('\n', respQuery)
+        i = 0
+
+        for elem in lista:
+            lista[i] = re.split(' ', elem)
+            i += 1
+
+        for entrada in lista:
+            if len(entrada) >= 5:
+                self.cache.registaAtualizaEntrada(entrada[0],entrada[1],entrada[2],entrada[3],'OTHERS',entrada[4])
+            else:
+                self.cache.registaAtualizaEntrada(entrada[0],entrada[1],entrada[2],entrada[3],'OTHERS')
