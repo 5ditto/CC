@@ -79,7 +79,7 @@ class Query:
 
         nrAutoridades = str(nrAutorithies)
         nrExtraValues = str(nrval + nrAutorithies)   
-        respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + "; "
+        respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + ";"
         respQuery += respValues
         respQuery += authorities
         respQuery += extraValues 
@@ -145,12 +145,19 @@ class Query:
             self.logs.RP_RR(False, str(add), resp.decode('utf-8'))
 
     def registaRespostaEmCache(self, respQuery):
-        lista = re.split('\n', respQuery)
+        lista = re.split(';', respQuery)
+        
         i = 0
-
         for elem in lista:
             lista[i] = re.split(' ', elem)
             i += 1
+
+        # Retira o cabeçalho da query
+        lista.pop(0)
+        lista.pop(0)
+        # Parsing da lista
+        lista[0].pop(0)
+        lista.pop(len(lista)-1)
 
         for entrada in lista:
             if len(entrada) >= 5:

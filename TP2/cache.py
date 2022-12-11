@@ -65,22 +65,22 @@ class Cache:
         
         return -1
 
-    def procuraEntradaCompleta(self, name, type, value, order):
+    def procuraEntradaCompleta(self, name, typeValue, value, order):
 
         for i in range(300):
-            if self.cache[i][0] == name and self.cache[i][1] == type and self.cache[i][2] == value and self.cache[i][4] == order:
+            if self.cache[i][0] == name and self.cache[i][1] == typeValue and self.cache[i][2] == value and self.cache[i][4] == order:
                 return i
         
         return -1
 
     # Se calhar o ttl não é necessário receber
     # Esta função retorna false quando o pedido de registo de uma entrada é ignorado caso contrário retorna true
-    def registaAtualizaEntrada(self, name, type, value, ttl, origin, order = ''):
+    def registaAtualizaEntrada(self, name, typeValue, value, ttl, origin, order = ''):
 
         if origin == 'FILE' or origin == 'SP':
             index = self.procuraPrimeiraEntradaFree()
             self.cache[index][0] = name
-            self.cache[index][1] = type
+            self.cache[index][1] = typeValue
             self.cache[index][2] = value
             self.cache[index][3] = ttl
             self.cache[index][4] = order
@@ -88,12 +88,12 @@ class Cache:
             self.cache[index][6] = datetime.now()
             self.cache[index][8] = 'VALID'
         elif origin == 'OTHERS':
-            index = self.procuraEntradaCompleta(name, type, value, order)
-            if index <= 64000 and (self.cache[index][5] == 'SP' or self.cache[index][5] == 'FILE'):
+            index = self.procuraEntradaCompleta(name, typeValue, value, order)
+            if index >= 0 and index <= 300 and (self.cache[index][5] == 'SP' or self.cache[index][5] == 'FILE'):
                 return False
-            elif index <= 64000 and self.cache[index][5] == 'OTHERS':
+            elif index >= 0 and index <= 300 and self.cache[index][5] == 'OTHERS':
                 self.cache[index][0] = name
-                self.cache[index][1] = type
+                self.cache[index][1] = typeValue
                 self.cache[index][2] = value
                 self.cache[index][3] = ttl
                 self.cache[index][4] = order
@@ -101,10 +101,10 @@ class Cache:
                 self.cache[index][6] = datetime.now()
                 self.cache[index][8] = 'VALID'
                 return True
-            elif index > 64000:
+            elif index == -1:
                 index = self.procuraUltimaEntradaFree()
                 self.cache[index][0] = name
-                self.cache[index][1] = type
+                self.cache[index][1] = typeValue
                 self.cache[index][2] = value
                 self.cache[index][3] = ttl
                 self.cache[index][4] = order
@@ -117,3 +117,10 @@ class Cache:
         for i in range(300):
             if self.cache[i][0] == name:
                 self.cache[i][8] = 'FREE'
+    
+    # Esta função serve para debug da cache
+    def printaEntradasValid(self):  
+        
+        for i in range(300):
+            if self.cache[i][8] == 'VALID':
+                print(self.cache[i])
