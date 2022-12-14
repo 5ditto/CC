@@ -1,0 +1,25 @@
+# DNS database file for an ST
+
+TTL DEFAULT 86400
+
+lon3r. NS ns1.lon3r. TTL
+lon3r. NS ns2.lon3r. TTL
+lon3r. NS ns3.lon3r. TTL
+ns1 A 10.0.18.10:53 TTL
+ns2 A 10.0.13.10:53 TTL
+ns3 A 10.0.12.11:53 TTL
+
+sp1 CNAME ns1 TTL
+ss2 CNAME ns2 TTL
+ss1 CNAME ns3 TTL
+
+johny. NS ns4.johny. TTL
+johny. NS ns5.johny. TTL
+johny. NS ns6.johny. TTL
+ns4 A 10.0.19.10:53 TTL
+ns5 A 10.0.20.10:53 TTL
+ns6 A 10.0.25.10:53 TTL
+
+sp4 CNAME ns4 TTL
+ss8 CNAME ns5 TTL
+ss7 CNAME ns6 TTL

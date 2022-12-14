@@ -58,6 +58,44 @@ class Dominio:
 
         f.close() 
 
+    def encontraNomeTTLDom(self, file):
+        name = ''
+        ttl = ''
+
+        for line in file:
+            x = re.split(" ", line)
+            if x[1] == 'DEFAULT' and x[0] == '@': 
+                name = x[2]
+            
+            if x[1] == 'DEFAULT' and x[0] == 'TTL':
+                ttl = x[2][:-1]
+
+            if name != '' and ttl != '':
+                return name, ttl 
+        
+        return name, ttl
+
+    def parseDB(self, cache, logs):
+        f = open(self.ficheiroDb, 'r')
+        name, ttl = self.encontraNomeTTLDom(f)
+        name = name[:-1]
+
+        for line in f:
+            splited = re.split(' ', line[:-1]) 
+            if splited[0] != '#':
+                if len(splited) >= 5 and splited[0] == '@':
+                    cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE', splited[4])
+                elif len(splited) >= 5 and splited[0] != '@':
+                    cache.registaAtualizaEntrada(splited[0], splited[1], splited[2], ttl, 'FILE', splited[4])
+                elif len(splited) < 5 and splited[0] == '@':
+                    cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE')
+                else:
+                    cache.registaAtualizaEntrada(splited[0], splited[1], splited[2], ttl, 'FILE')
+            
+            logs.EV("Registada entrada na cache do SP")
+        
+        f.close()
+
     def __str__(self):
         string = "Nome: " + self.name + "\nDB: " + self.ficheiroDb + "\nEndereço SP: " + self.endSP + "\nEndereços SS: "
 
@@ -74,100 +112,3 @@ class Dominio:
 
         return string
 
-#dom = Dominio("config.txt")
-#dom.parseFicheiroConfig()
-#dom.parseFicheiroListaST()
-#print(dom)
-
-
-
-#def parseFicheiroBaseDados(self, ficheiro = None):
-#
-#        if ficheiro == None:
-#            self.ficheiroDb = self.ficheiroDb[:-1]
-#            ficheiro = self.ficheiroDb
-#
-#        f = open(ficheiro, "r")
-#        # Servidores Autoritários
-#        self.db["A"] = dict()
-#        nrEntradas = 0
-#
-#        for line in f:
-#            nrEntradas += 1
-#            lista = re.split(" ", line)
-#
-#            if lista[0] != "#":
-#                if lista[0] == "TTL":
-#                    self.db['TTL'] = lista[2][:-1]
-#                elif lista[1] == "A":
-#                    valor = ''
-#                    i = 2
-#                    while i < len(lista):
-#                        valor += lista[i] + " "
-#                        i += 1
-#                    valor = valor[:-2]
-#                    self.db["A"][lista[0]] = valor
-#                elif lista[1] == "SOASERIAL":
-#                    self.db['SOASERIAL'] = lista[2]
-#                else:
-#                    # Se a chave ainda não existir no dicionario associamo-la a um set de valores
-#                    if lista[1] not in self.db.keys():
-#                        self.db[lista[1]] = set()
-#
-#                    if len(lista) < 4: # Se o lista[2] for o ultimo elemento retiramos o '\n'
-#                        self.db[lista[1]].add(lista[2][:-1])
-#                    else:
-#                        valor = ''
-#                        i = 2
-#                        while i < len(lista):
-#                            valor += lista[i] + " "
-#                            i += 1 
-#                        valor = valor[:-2]
-#                        self.db[lista[1]].add(valor)   
-#
-#        self.db['nrEntradas'] = nrEntradas
-#        f.close()
-#
-#    # Esta função serve para fazer o parse da string que o SS ficou depois de fazer a transferência de zona com o SP
-#    # Transforma essa string na nova base de dados do SS
-#    # Se calhar é boa ideia mudar esta função para o SS
-#    def parseStringParaDB(self, baseDeDados):
-#        # baseDeDados -> String
-#        # Servidores Autoritários
-#        self.db["A"] = dict()
-#        lista = re.split("\n", baseDeDados)
-#        i = 0
-#        for item in lista:
-#            lista[i] = re.split(" ", item)
-#            i += 1
-#
-#        for linha in lista:
-#
-#            if linha[1] != "#":
-#                if linha[1] == "TTL":
-#                    self.db['TTL'] = linha[3][:-1]
-#                elif linha[2] == "A":
-#                    valor = ''
-#                    i = 3
-#                    while i < len(linha):
-#                        valor += linha[i] + " "
-#                        i += 1
-#                    valor = valor[:-2]
-#                    self.db["A"][linha[1]] = valor
-#                elif linha[2] == "SOASERIAL":
-#                    self.db['SOASERIAL'] = linha[3]
-#                else:
-#                    # Se a chave ainda não existir no dicionario associamo-la a um set de valores
-#                    if linha[2] not in self.db.keys():
-#                        self.db[linha[2]] = set()
-#
-#                    if len(linha) < 4: # Se o lista[2] for o ultimo elemento retiramos o '\n'
-#                        self.db[linha[2]].add(linha[3][:-1])
-#                    else:
-#                        valor = ''
-#                        i = 3
-#                        while i < len(linha):
-#                            valor += linha[i] + " "
-#                            i += 1 
-#                        valor = valor[:-2]
-#                        self.db[linha[2]].add(valor)

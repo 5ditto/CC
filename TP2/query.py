@@ -119,6 +119,7 @@ class Query:
             pedido = msg.decode('utf-8')
             splited1 = re.split(";", pedido)
             splited2 = re.split(",", splited1[1])
+            splited3 = re.split(",", splited1[0])
             dom = splited2[0]
             typeValue = splited2[1] 
             
@@ -129,7 +130,6 @@ class Query:
                 nameDom = self.dom.name + "."
                 if nameDom == dom and len(self.dom.endDD) > 0:
                     splited = re.split(":", self.dom.endDD[0])
-
                     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                     s.sendto(msg, (splited[0], int(splited[1]))) 
                     self.logs.QR_QE(False, self.dom.endDD[0], msg.decode('utf-8'))
@@ -139,10 +139,46 @@ class Query:
                     self.registaRespostaEmCache(respString)
                 else:
                     # Não existe numa entrada DD sobre o domínio em questão para obter a resposta diretamente, logo vamos perguntar ao ST
-                    return "Ainda não implementado"
-            
+                    recursiva = False
+                    if 'R' in splited3[1]:
+                        recursiva = True
+                    queryST = self.geraQueryST(dom, recursiva)
+                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
+                    splited = re.split(":", self.dom.endSTs[0])
+                    s.sendto(queryST.encode('utf-8'), (splited[0], int(splited[1]))) # Envia query ao ST
+                    self.logs.QR_QE(False, self.dom.endSTs[0], queryST.decode('utf-8'))
+                    resp, add2 = s.recvfrom(1024) # Recebe resposta do ST
+                    respString = resp.decode('utf-8')
+                    self.logs.RP_RR(True, str(add2), respString)
+                    self.registaRespostaEmCache(respString) # Regista a resposta na cache
+                    ip, porta = self.serverAutoritario(dom)
+                    s1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
+                    s1.sendto(msg, (ip, int(porta))) # Envia resposta para o server autoritativo do dominio
+                    self.logs.QR_QE(False, ip + ":" + porta, pedido)
+                    resp2, add3 = s.recvfrom(1024) # Recebe resposta do server autoritativo
+                    respString = resp2.decode('utf-8')
+                    self.logs.RP_RR(True, str(add3), respString)
+                    self.registaRespostaEmCache(respString)
+
             self.socketUDP.sendto(respString.encode('utf-8'), add)
             self.logs.RP_RR(False, str(add), resp.decode('utf-8'))
+
+    def geraQueryST(self, dom, recursiva):
+        msgId = str(random.randint(1, 65535))
+        flags = 'Q'
+        if recursiva:
+            flags += '+R'
+        
+        return msgId + "," + flags + "0,0,0,0;" + dom + ",A;"
+
+    def serverAutoritario(self, dom):
+        index = self.cache.procuraEntradaValid(dom, 'NS')
+        nome = self.cache.cache[index][2]
+        nome.replace("." + dom, "")
+        index = self.cache.procuraEntradaValid(nome, 'A')
+        ipPortaServer = self.cache.cache[index][2]
+        lista = re.split(":", ipPortaServer)
+        return (lista[0], lista[1])
 
     def registaRespostaEmCache(self, respQuery):
         lista = re.split(';', respQuery)

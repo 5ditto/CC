@@ -20,11 +20,9 @@ class SP:
         self.logs.EV('ficheiro de STs lido')
         self.logs.EV('criado ficheiro de logs')
         self.cache = Cache()
-        self.parseDB()
+        self.dom.parseDB(self.cache, self.logs)
         self.logs.EV('ficheiro de dados lido')
         self.query = Query(True, self.dom, self.cache, self.logs, self.portaAtendimento)
-        #self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        #self.socketUDP.bind(('', int(self.portaAtendimento)))
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
 
@@ -99,44 +97,6 @@ class SP:
             connection, address = self.socketTCP.accept()
             print(f"Recebi uma ligação do cliente {address}, conexão {connection}")
             threading.Thread(target=self.devolveVersaoDB, args=(connection, address)).start()    
-        
-    def encontraNomeTTLDom(self, file):
-        name = ''
-        ttl = ''
-
-        for line in file:
-            x = re.split(" ", line)
-            if x[1] == 'DEFAULT' and x[0] == '@': 
-                name = x[2]
-            
-            if x[1] == 'DEFAULT' and x[0] == 'TTL':
-                ttl = x[2][:-1]
-
-            if name != '' and ttl != '':
-                return name, ttl 
-        
-        return name, ttl
-        
-    def parseDB(self):
-        f = open(self.dom.ficheiroDb, 'r')
-        name, ttl = self.encontraNomeTTLDom(f)
-        name = name[:-1]
-
-        for line in f:
-            splited = re.split(' ', line[:-1]) 
-            if splited[0] != '#':
-                if len(splited) >= 5 and splited[0] == '@':
-                        self.cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE', splited[4])
-                elif len(splited) >= 5 and splited[0] != '@':
-                    self.cache.registaAtualizaEntrada(splited[0], splited[1], splited[2], ttl, 'FILE', splited[4])
-                elif len(splited) < 5 and splited[0] == '@':
-                    self.cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE')
-                else:
-                    self.cache.registaAtualizaEntrada(splited[0], splited[1], splited[2], ttl, 'FILE')
-            
-            self.logs.EV("Registada entrada na cache do SP")
-        
-        f.close()
 
 sp = SP()
 sp.query.recebeQuerys()
