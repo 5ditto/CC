@@ -138,44 +138,75 @@ class Query:
                     self.logs.RP_RR(True, str(add2), respString)
                     self.registaRespostaEmCache(respString)
                 else:
-                    # Não existe numa entrada DD sobre o domínio em questão para obter a resposta diretamente, logo vamos perguntar ao ST
+                    # Não existe numa entrada DD sobre o domínio em questão para obter a resposta diretamente, logo vamos perguntar ao ST~
+                    print("Vamos ao ST!")
+                    
                     recursiva = False
                     if 'R' in splited3[1]:
                         recursiva = True
-                    queryST = self.geraQueryST(dom, recursiva)
+                    
                     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
-                    splited = re.split(":", self.dom.endSTs[0])
-                    s.sendto(queryST.encode('utf-8'), (splited[0], int(splited[1]))) # Envia query ao ST
-                    self.logs.QR_QE(False, self.dom.endSTs[0], queryST.decode('utf-8'))
-                    resp, add2 = s.recvfrom(1024) # Recebe resposta do ST
-                    respString = resp.decode('utf-8')
-                    self.logs.RP_RR(True, str(add2), respString)
-                    self.registaRespostaEmCache(respString) # Regista a resposta na cache
+                    ip, porta = self.dom.endSTs[0]
+                    self.query1ST(dom, recursiva, ip, porta, s) # Primeira query ao ST (dom e 'NS')
+
+                    self.query2ST(dom, recursiva, ip, porta, s) # Segunda query ao ST (nomeServerAut e 'A')
+
                     ip, porta = self.serverAutoritario(dom)
                     s1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
-                    s1.sendto(msg, (ip, int(porta))) # Envia resposta para o server autoritativo do dominio
+                    s1.sendto(msg, (ip, int(porta))) # Envia a query para o server autoritativo do dominio
                     self.logs.QR_QE(False, ip + ":" + porta, pedido)
-                    resp2, add3 = s.recvfrom(1024) # Recebe resposta do server autoritativo
-                    respString = resp2.decode('utf-8')
-                    self.logs.RP_RR(True, str(add3), respString)
+                    resp, add2 = s.recvfrom(1024) # Recebe resposta do server autoritativo do dominio
+                    respString = resp.decode('utf-8')
+                    self.logs.RP_RR(True, str(add2), respString)
                     self.registaRespostaEmCache(respString)
 
             self.socketUDP.sendto(respString.encode('utf-8'), add)
             self.logs.RP_RR(False, str(add), resp.decode('utf-8'))
 
-    def geraQueryST(self, dom, recursiva):
+    def query1ST(self, dom, recursiva, ip, porta, s):
         msgId = str(random.randint(1, 65535))
         flags = 'Q'
         if recursiva:
             flags += '+R'
         
-        return msgId + "," + flags + "0,0,0,0;" + dom + ",A;"
+        queryST = msgId + "," + flags + ",0,0,0,0;" + dom + ",NS;"
+
+        s.sendto(queryST.encode('utf-8'), (ip, int(porta))) # Envia query ao ST
+        self.logs.QR_QE(False, ip + ":" + porta, queryST)
+
+        resp, add2 = s.recvfrom(1024) # Recebe resposta do ST
+        respString = resp.decode('utf-8')
+        self.logs.RP_RR(True, str(add2), respString)
+        self.registaRespostaEmCache(respString) # Regista a resposta na cache
+
+    def geraQuery2ST(self, dom, recursiva, ip, porta, s):
+        msgId = str(random.randint(1, 65535))
+        flags = 'Q'
+        if recursiva:
+            flags += '+R'
+        
+        index = self.cache.procuraEntradaValid(1, dom, 'NS')
+        nomeAutoritativo = self.cache.cache[index][2]
+        nomeAut = nomeAutoritativo.replace("." + dom, "")
+        print(nomeAut)
+
+        queryST = msgId + "," + flags + ",0,0,0,0;" + nomeAut + ",A;"
+
+        s.sendto(queryST.encode('utf-8'), (ip, int(porta))) # Envia a segunda query ao ST
+        self.logs.QR_QE(False, ip + ":" + porta, queryST)
+
+        resp, add2 = s.recvfrom(1024) # Recebe a segunda resposta do ST
+        respString = resp.decode('utf-8')
+        self.logs.RP_RR(True, str(add2), respString)
+        self.registaRespostaEmCache(respString) # Regista a resposta na cache
+
 
     def serverAutoritario(self, dom):
-        index = self.cache.procuraEntradaValid(dom, 'NS')
+        print(self.cache.cache)
+        index = self.cache.procuraEntradaValid(1, dom, 'NS')
         nome = self.cache.cache[index][2]
         nome.replace("." + dom, "")
-        index = self.cache.procuraEntradaValid(nome, 'A')
+        index = self.cache.procuraEntradaValid(1, nome, 'A')
         ipPortaServer = self.cache.cache[index][2]
         lista = re.split(":", ipPortaServer)
         return (lista[0], lista[1])

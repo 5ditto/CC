@@ -20,115 +20,213 @@ import re
 class Logs:
     # O modo é se estamos a correr um servidor em modo debug ou shy
     # No modo debug, todos os logs também são mandados para o standard output
-    def __init__(self, fileLogs = '', fileLogsAll = '', modo = ''):
+    def __init__(self, fileLogs = '', fileLogsAll = '', modo = '', st = False):
         fstLine = "# Log File for DNS server/resolver\n"
         self.fileLogs = fileLogs
         self.fileLogsAll = fileLogsAll
 
-        f = open(self.fileLogs, "a")
-        f.write(fstLine)
-        f.close()
+        if fileLogs != '':
+            f = open(self.fileLogs, "a")
+            f.write(fstLine)
+            f.close()
 
-        fAll = open(self.fileLogsAll, "a")
-        fAll.write(fstLine)
-        fAll.close
+        if fileLogsAll != '':
+            fAll = open(self.fileLogsAll, "a")
+            fAll.write(fstLine)
+            fAll.close()
         
+        if st:
+            self.st = True
+        else:
+            self.st = False
+
         self.modo = modo
 
     # Se recebido == true então significa que o componente recebeu uma query, caso contrário foi ele que enviou uma query
-    def QR_QE(self, recebido, endereco, infoQuery = ''):
-        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+    # O último argumento "all" representa se o logs vai para o logsAll ou para o normal
+    def QR_QE(self, recebido, endereco, infoQuery = '', all = False):
         
         if recebido:
             string = "QR " + endereco + " " + infoQuery
         else:
             string = "QE " + endereco + " " + infoQuery
         
-        logging.info(string)
+        if self.st:
+            logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+            logging.info(string)
+        else:
+            if all:
+                logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+            else:
+                logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+            
         if self.modo == 'debug':
             print(string)
 
-    def RP_RR(self, recebido, endereco, infoQuery=''):
-        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
-        
+    def RP_RR(self, recebido, endereco, infoQuery='', all = False):
+
         if recebido:
             string = "RR " + endereco + " " + infoQuery
         else:
             string = "RP " + endereco + " " + infoQuery
 
-        logging.info(string)
+        if self.st:
+            logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+            logging.info(string)
+        else:
+            if all:
+                logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+            else:
+                logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+
         if self.modo == 'debug':
             print(string)
 
-    def ZT(self, ip, porta, role = '', time = '', totalbytes = ''):
-        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+    def ZT(self, ip, porta, role = '', time = '', totalbytes = '', all = False):
         
         if time == '' and totalbytes == '':
             string = "ZT " + ip + ":" + porta + " " + role
         else:
             string = "ZT " + ip + ":" + porta + " " + role + " " + time + " " + totalbytes
 
-        logging.info(string)
+        if self.st:
+            logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+            logging.info(string)
+        else:
+            if all:
+                logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+            else:
+                logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+
         if self.modo == 'debug':
             print(string)
 
-    def EV(self, eventType, msg=''):
-        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+    def EV(self, eventType, msg='', all = False):
 
         if msg:
             string = "EV 127.0.0.1 " + eventType + " " + msg 
         else:
             string = "EV 127.0.0.1 " + eventType
 
-        logging.info(string)
+        if self.st:
+            logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+            logging.info(string)
+        else:
+            if all:
+                logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+            else:
+                logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+
         if self.modo == 'debug':
             print(string)
 
-    def ER(self, endereco):
-        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+    def ER(self, endereco, all = False):
         string = "ER " + endereco   
 
-        logging.info(string)
+        if self.st:
+            logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+            logging.info(string)
+        else:
+            if all:
+                logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+            else:
+                logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+
         if self.modo == 'debug':
             print(string)
 
-    def EZ(self, ip, porta, role):
-        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+    def EZ(self, ip, porta, role, all = False):
 
         string = "EZ " + ip + ":" + porta + " " + role
 
-        logging.info(string)
+        if self.st:
+            logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+            logging.info(string)
+        else:
+            if all:
+                logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+            else:
+                logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+        
         if self.modo == 'debug':
             print(string)
 
-    def FL(self, errorType):
-        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+    def FL(self, errorType, all = False):
         string = "FL 127.0.0.1 " + errorType
 
-        logging.info(string)
+        if self.st:
+            logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+            logging.info(string)
+        else:
+            if all:
+                logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+            else:
+                logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+        
         if self.modo == 'debug':
             print(string)
 
-    def TO(self, timeoutType):
-        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+    def TO(self, timeoutType, all = False):
         string = "TO " + timeoutType
 
-        logging.info(string)
+        if self.st:
+            logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+            logging.info(string)
+        else:
+            if all:
+                logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+            else:
+                logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+        
         if self.modo == 'debug':
             print(string)
 
-    def SP(self, reason):
-        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+    def SP(self, reason, all = False):
         string = "SP 127.0.0.1 " + reason
 
-        logging.info(string)
+        if self.st:
+            logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+            logging.info(string)
+        else:
+            if all:
+                logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+            else:
+                logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+        
         if self.modo == 'debug':
             print(string)
 
-    def ST(self, port, timeout, mode):
-        logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+    def ST(self, port, timeout, mode, all = False):
         string = "ST 127.0.0.1 " + port + " " + timeout + " " + mode
         
-        logging.info(string)
+        if self.st:
+            logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+            logging.info(string)
+        else:
+            if all:
+                logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+            else:
+                logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
+                logging.info(string)
+        
         if self.modo == 'debug':
             print(string)

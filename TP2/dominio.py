@@ -58,31 +58,34 @@ class Dominio:
 
         f.close() 
 
-    def encontraNomeTTLDom(self, file):
+    def encontraNomeTTLDom(self):
+        file = open(self.ficheiroDb, "r")
         name = ''
         ttl = ''
 
         for line in file:
             x = re.split(" ", line)
-            if x[1] == 'DEFAULT' and x[0] == '@': 
-                name = x[2]
-            
-            if x[1] == 'DEFAULT' and x[0] == 'TTL':
-                ttl = x[2][:-1]
+            if x[0] != "#" and x[0] != '\n': # Se o x[0] é um '\n' então estamos numa linha vazia
+                if x[1] == 'DEFAULT' and x[0] == '@': 
+                    name = x[2]
 
-            if name != '' and ttl != '':
-                return name, ttl 
+                if x[1] == 'DEFAULT' and x[0] == 'TTL':
+                    ttl = x[2][:-1]
+
+                if name != '' and ttl != '':
+                    return name, ttl 
         
+        file.close()
         return name, ttl
 
     def parseDB(self, cache, logs):
-        f = open(self.ficheiroDb, 'r')
-        name, ttl = self.encontraNomeTTLDom(f)
+        name, ttl = self.encontraNomeTTLDom()
         name = name[:-1]
+        f = open(self.ficheiroDb, "r")
 
         for line in f:
-            splited = re.split(' ', line[:-1]) 
-            if splited[0] != '#':
+            splited = re.split(' ', line[:-1])
+            if splited[0] != "#" and len(splited) > 1:
                 if len(splited) >= 5 and splited[0] == '@':
                     cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE', splited[4])
                 elif len(splited) >= 5 and splited[0] != '@':

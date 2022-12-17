@@ -9,7 +9,7 @@ class ST:
         self.portaAtendimento = sys.argv[2]
         self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o seu ficheiro config
         self.dom.parseFicheiroConfig()
-        self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll, sys.argv[4])
+        self.logs = Logs(self.dom.ficheiroLogs, self.dom.ficheiroLogsAll, sys.argv[4], True)
         self.logs.ST(self.portaAtendimento, sys.argv[3], sys.argv[4])
         self.logs.EV('ficheiro de configuração lido')
         self.logs.EV('criado ficheiro de logs')

@@ -23,17 +23,3 @@ class CL:
 cl = CL()
 respMsg, add = cl.query.enviaQuery()
 print(respMsg.decode('utf-8'))
-
-
-#def geraMsgQuery(self):
-#    msgId = str(random.randint(1, 65535))
-#    flags = 'Q'
-#    if self.recursiva:
-#        flags += '+R'
-#    return msgId + "," + flags + "," + "0,0,0,0" + ";" + self.name + "," + self.typeValue + ";" 
-
-#def queryCL(self):
-#    msg = self.geraMsgQuery()
-#    self.sUDP.sendto(msg.encode('utf-8'), (self.ipServer, int(self.porta)))
-#    RespMsg, add = self.sUDP.recvfrom(1024)
-#    print(str(RespMsg))
