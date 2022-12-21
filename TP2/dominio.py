@@ -78,13 +78,14 @@ class Dominio:
         file.close()
         return name, ttl
 
-    def parseDB(self, cache, logs):
+    def parseDB(self, cache, logs, server):
         name, ttl = self.encontraNomeTTLDom()
         name = name[:-1]
         f = open(self.ficheiroDb, "r")
 
         for line in f:
-            splited = re.split(' ', line[:-1])
+            line = line.replace("\n", "")
+            splited = re.split(' ', line)
             if splited[0] != "#" and len(splited) > 1:
                 if len(splited) >= 5 and splited[0] == '@':
                     cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE', splited[4])
@@ -95,7 +96,7 @@ class Dominio:
                 else:
                     cache.registaAtualizaEntrada(splited[0], splited[1], splited[2], ttl, 'FILE')
             
-            logs.EV("Registada entrada na cache do SP")
+            logs.EV("Registada entrada na cache do " + server)
         
         f.close()
 

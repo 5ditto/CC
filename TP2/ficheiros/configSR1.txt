@@ -1,0 +1,7 @@
+# Configuration file for resolver server for lon3r
+lon3r DD 10.0.18.10:53
+lon3r DD 10.0.13.10:53
+lon3r DD 10.0.12.11:53
+lon3r LG /home/core/Desktop/CCTP2/ficheiros/logsSR1.log
+all LG /home/core/Desktop/CCTP2/ficheiros/logsSR1All.log
+root ST /home/core/Desktop/CCTP2/ficheiros/sts.txt

@@ -20,7 +20,7 @@ class SP:
         self.logs.EV('ficheiro de STs lido')
         self.logs.EV('criado ficheiro de logs')
         self.cache = Cache()
-        self.dom.parseDB(self.cache, self.logs)
+        self.dom.parseDB(self.cache, self.logs, 'SP')
         self.logs.EV('ficheiro de dados lido')
         self.query = Query(True, self.dom, self.cache, self.logs, self.portaAtendimento)
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -99,4 +99,4 @@ class SP:
             threading.Thread(target=self.devolveVersaoDB, args=(connection, address)).start()    
 
 sp = SP()
-sp.query.recebeQuerys()
+sp.query.recebeQuerys(True) # True porque se trata de um servidor autoritativo

@@ -23,7 +23,7 @@ class Query:
             self.name = name
             self.typeValue = typeValue
     
-    def geraRespQuery(self, msgQuery): 
+    def geraRespQuery(self, msgQuery, autoritativo = False): 
         respQuery = ''
         
         lista = re.split(";", msgQuery)
@@ -34,8 +34,7 @@ class Query:
         nameDom = self.dom.name + '.'
 
         # Flags:
-        # Como se trata do SP do domínio em questão então é autoritativo
-        if queryInfo[0] == nameDom:
+        if queryInfo[0] == nameDom and autoritativo:
             headerFields[1] += '+A'
             
         extraValues = ''
@@ -48,12 +47,13 @@ class Query:
 
             listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], queryInfo[1])
             for index in listaIndex:
-                respValues += self.cache.entrada(index)[:-1] + ";"
+                respValues += self.cache.entrada(index) + ";"
                 nrval += 1
                 val = self.cache.campoValor(index)
-                comp = val.replace(self.dom.name ,"")[:-2]
+                comp = val.replace("." + nameDom , "")
+                print("Comp: " + comp)
                 i = self.cache.procuraEntradaValid(1, comp, 'A')
-                extraValues += self.cache.entrada(i)[:-1] + ";"
+                extraValues += self.cache.entrada(i) + ";"
 
         elif queryInfo[0] == nameDom:
             responseCode = '1'
@@ -70,26 +70,29 @@ class Query:
         nrAutorithies = 0
         listaIndex = self.cache.todasEntradasValid(1, nameDom, 'NS')
         for index in listaIndex:
-            authorities += self.cache.entrada(index)[:-1] + ";"
+            authorities += self.cache.entrada(index) + ";"
             nrAutorithies += 1
             val = self.cache.campoValor(index)
-            comp = val.replace(self.dom.name ,"")[:-2]
+            comp = val.replace("." + nameDom ,"")
+            print("Comp: " + comp)
             i = self.cache.procuraEntradaValid(1, comp, 'A')
-            extraValues += self.cache.entrada(i)[:-1] + ";"
+            extraValues += self.cache.entrada(i) + ";"
 
         nrAutoridades = str(nrAutorithies)
         nrExtraValues = str(nrval + nrAutorithies)   
         respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + ";"
         respQuery += respValues
-        respQuery += authorities
-        respQuery += extraValues 
+        if nrAutorithies > 0:
+            respQuery += authorities
+        if nrval + nrAutorithies > 0 and nrAutorithies > 0:
+            respQuery += extraValues 
         return respQuery
 
-    def recebeQuerys(self):
+    def recebeQuerys(self, autoritativo = False):
         while True:
             msg, add = self.socketUDP.recvfrom(1024)
             self.logs.QR_QE(True, str(add), msg.decode('utf-8'))
-            msgResp = self.geraRespQuery(msg.decode('utf-8'))
+            msgResp = self.geraRespQuery(msg.decode('utf-8'), autoritativo)
             self.socketUDP.sendto(msgResp.encode('utf-8'), add)
             self.logs.RP_RR(False, str(add), msgResp)
 
@@ -125,7 +128,7 @@ class Query:
             
             index = self.cache.procuraEntradaValid(1,dom,typeValue)
             if index >= 0 and index <= self.cache.nrEntradas: # Temos a resposta em cache logo é só responder diretamente ao CL
-                respString = self.geraRespQuery(pedido)
+                respString = self.geraRespQuery(pedido, False) # False porque o SR nunca é um servidor autoritativo
             else: # A resposta à query não está em cache logo vamos ter que perguntar aos servidores
                 nameDom = self.dom.name + "."
                 if nameDom == dom and len(self.dom.endDD) > 0:
@@ -138,9 +141,7 @@ class Query:
                     self.logs.RP_RR(True, str(add2), respString)
                     self.registaRespostaEmCache(respString)
                 else:
-                    # Não existe numa entrada DD sobre o domínio em questão para obter a resposta diretamente, logo vamos perguntar ao ST~
-                    print("Vamos ao ST!")
-                    
+                    # Não existe numa entrada DD sobre o domínio em questão para obter a resposta diretamente, logo vamos perguntar ao ST
                     recursiva = False
                     if 'R' in splited3[1]:
                         recursiva = True
@@ -155,7 +156,7 @@ class Query:
                     s1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
                     s1.sendto(msg, (ip, int(porta))) # Envia a query para o server autoritativo do dominio
                     self.logs.QR_QE(False, ip + ":" + porta, pedido)
-                    resp, add2 = s.recvfrom(1024) # Recebe resposta do server autoritativo do dominio
+                    resp, add2 = s1.recvfrom(1024) # Recebe resposta do server autoritativo do dominio
                     respString = resp.decode('utf-8')
                     self.logs.RP_RR(True, str(add2), respString)
                     self.registaRespostaEmCache(respString)
@@ -179,16 +180,16 @@ class Query:
         self.logs.RP_RR(True, str(add2), respString)
         self.registaRespostaEmCache(respString) # Regista a resposta na cache
 
-    def geraQuery2ST(self, dom, recursiva, ip, porta, s):
+    def query2ST(self, dom, recursiva, ip, porta, s):
         msgId = str(random.randint(1, 65535))
         flags = 'Q'
         if recursiva:
             flags += '+R'
         
         index = self.cache.procuraEntradaValid(1, dom, 'NS')
-        nomeAutoritativo = self.cache.cache[index][2]
-        nomeAut = nomeAutoritativo.replace("." + dom, "")
-        print(nomeAut)
+        if index > -1 and index <= self.cache.nrEntradas:
+            nomeAutoritativo = self.cache.cache[index-1][2]
+            nomeAut = nomeAutoritativo.replace("." + dom, "")
 
         queryST = msgId + "," + flags + ",0,0,0,0;" + nomeAut + ",A;"
 
@@ -202,12 +203,11 @@ class Query:
 
 
     def serverAutoritario(self, dom):
-        print(self.cache.cache)
         index = self.cache.procuraEntradaValid(1, dom, 'NS')
-        nome = self.cache.cache[index][2]
-        nome.replace("." + dom, "")
-        index = self.cache.procuraEntradaValid(1, nome, 'A')
-        ipPortaServer = self.cache.cache[index][2]
+        nome = self.cache.cache[index-1][2]
+        nome2 = nome.replace("." + dom, "")
+        index = self.cache.procuraEntradaValid(1, nome2, 'A')
+        ipPortaServer = self.cache.cache[index-1][2]
         lista = re.split(":", ipPortaServer)
         return (lista[0], lista[1])
 
@@ -222,8 +222,6 @@ class Query:
         # Retira o cabeçalho da query
         lista.pop(0)
         lista.pop(0)
-        # Parsing da lista
-        lista[0].pop(0)
         lista.pop(len(lista)-1)
 
         for entrada in lista:

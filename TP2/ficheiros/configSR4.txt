@@ -1,0 +1,7 @@
+# Configuration file for resolver server for johny
+johny DD 10.0.19.10:53
+johny DD 10.0.20.10:53
+johny DD 10.0.25.10:53
+johny LG /home/core/Desktop/CCTP2/ficheiros/logsSR4.log
+all LG /home/core/Desktop/CCTP2/ficheiros/logsSR4All.log
+root ST /home/core/Desktop/CCTP2/ficheiros/sts.txt

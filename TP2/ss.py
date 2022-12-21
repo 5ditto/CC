@@ -23,7 +23,7 @@ class SS:
         # self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # self.socketUDP.bind(('', int(self.portaAtendimento)))
         # Thread que vai estar sempre à espera de novas querys
-        threading.Thread(target = self.query.recebeQuerys, args=()).start()
+        threading.Thread(target = self.query.recebeQuerys, args=(True)).start()
     
     def encontraNomeTTLDom(self, lista):
         name = ''

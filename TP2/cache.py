@@ -43,9 +43,14 @@ class Cache:
         return ''
 
     def entrada(self, index):
-        if index <= self.nrEntradas:
-            return self.cache[index-1][0] + " " + self.cache[index-1][1] + " " + self.cache[index-1][2] + " " + self.cache[index-1][3] + " " + self.cache[index-1][4]
-        return ''
+        entrada = ''
+        if index <= self.nrEntradas and index > 0:
+            if self.cache[index-1][4] == '':
+                entrada = self.cache[index-1][0] + " " + self.cache[index-1][1] + " " + self.cache[index-1][2] + " " + self.cache[index-1][3]
+            else:
+                entrada = self.cache[index-1][0] + " " + self.cache[index-1][1] + " " + self.cache[index-1][2] + " " + self.cache[index-1][3] + " " + self.cache[index-1][4]
+
+        return entrada
 
     def procuraPrimeiraEntradaFree(self):
 

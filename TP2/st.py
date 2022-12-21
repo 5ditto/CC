@@ -14,9 +14,9 @@ class ST:
         self.logs.EV('ficheiro de configuração lido')
         self.logs.EV('criado ficheiro de logs')
         self.cache = Cache()
-        self.dom.parseDB(self.cache, self.logs)
+        self.dom.parseDB(self.cache, self.logs, 'ST')
         self.logs.EV('ficheiro de dados lido')
         self.query = Query(True, self.dom, self.cache, self.logs, self.portaAtendimento)
         
 st = ST()
-st.query.recebeQuerys()
+st.query.recebeQuerys() # Verificar se o ST é autoritativo ou não!!
