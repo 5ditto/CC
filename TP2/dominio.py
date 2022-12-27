@@ -87,12 +87,14 @@ class Dominio:
             line = line.replace("\n", "")
             splited = re.split(' ', line)
             if splited[0] != "#" and len(splited) > 1:
-                if len(splited) >= 5 and splited[0] == '@':
-                    cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE', splited[4])
-                elif len(splited) >= 5 and splited[0] != '@':
+                if len(splited) >= 5 and '@' in splited[0]:
+                    entrada1 = splited[0].replace('@', name)
+                    cache.registaAtualizaEntrada(entrada1, splited[1], splited[2], ttl, 'FILE', splited[4])
+                elif len(splited) >= 5 and '@' not in splited[0]:
                     cache.registaAtualizaEntrada(splited[0], splited[1], splited[2], ttl, 'FILE', splited[4])
-                elif len(splited) < 5 and splited[0] == '@':
-                    cache.registaAtualizaEntrada(name, splited[1], splited[2], ttl, 'FILE')
+                elif len(splited) < 5 and '@' in splited[0]:
+                    entrada1 = splited[0].replace('@', name)
+                    cache.registaAtualizaEntrada(entrada1, splited[1], splited[2], ttl, 'FILE')
                 else:
                     cache.registaAtualizaEntrada(splited[0], splited[1], splited[2], ttl, 'FILE')
             

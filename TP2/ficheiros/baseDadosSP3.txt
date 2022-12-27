@@ -1,7 +1,7 @@
 # DNS database file for domain dubai.johny
 # It also includes a pointer to the primary server
 # of the smaller.dubai.johny subdomain
-@ DEFAULT dubai.johny
+@ DEFAULT dubai.johny.
 TTL DEFAULT 86400
 @ SOASP ns1.dubai.johny. TTL
 @ SOAADMIN dns\.admin.dubai.johny. TTL
