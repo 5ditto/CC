@@ -23,3 +23,8 @@ ns6 A 10.0.25.10:53 TTL
 sp4 CNAME ns4 TTL
 ss8 CNAME ns5 TTL
 ss7 CNAME ns6 TTL
+
+reverse. NS ns7.reverse. TTL
+ns7 A 10.0.27.10:53 TTL
+
+sp5 CNAME ns7 TTL

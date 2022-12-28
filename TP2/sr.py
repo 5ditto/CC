@@ -1,10 +1,8 @@
-import re
 import sys
 from dominio import Dominio
 from logs import Logs
 from cache import Cache
 from query import Query
-import socket
 
 class SR:
 

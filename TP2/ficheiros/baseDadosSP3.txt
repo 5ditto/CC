@@ -12,7 +12,6 @@ TTL DEFAULT 86400
 @ NS ns1.dubai.johny. TTL
 @ NS ns2.dubai.johny. TTL
 @ NS ns3.dubai.johny. TTL
-Smaller.@ NS sp.smaller.dubai.johny.
 @ MX mx1.dubai.johny. TTL 10
 @ MX mx2.dubai.johny. TTL 20
 ns1 A 193.136.130.250 TTL

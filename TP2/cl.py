@@ -5,7 +5,6 @@
 # O quarto parâmetro indica se a query deve ser feita de maneira recursiva ou não
 import sys
 import re
-import random
 from query import Query
 
 class CL:

@@ -1,6 +1,4 @@
 import logging
-import re
-# Aspetos positivos : data está bem :)
 
 # Tipos de Entradas que existem
 #  QR/QE -> end que recebeu/enviou a query + dados relevante da query 

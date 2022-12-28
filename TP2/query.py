@@ -157,7 +157,21 @@ class Query:
                     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
                     ip, porta = self.dom.endSTs[0]
                     
-                    if dom.count('.') == 2: # Significa que a query é sobre um sub-domínio
+                    if typeValue == 'PTR':
+                        # Reverse mapping
+                       
+                        self.query1STSDT("reverse.", recursiva, ip, porta, s, all) # Primeira query ao ST (dom e 'NS')
+                        ip, porta = self.query2ST("reverse.", recursiva, ip, porta, s, all) # Segunda query ao ST (nomeServerAut e 'A')
+                        
+                        s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                        self.query1STSDT("in-addr.reverse.", recursiva, ip, porta, s2, all) # Primeira query ao SDT (dom e 'NS')
+                        ip, porta = self.query2SDT("in-addr.reverse.", recursiva, ip, porta, s2, all) # Segunda query ao SDT (nomeServerAut e 'A')
+                        
+                        s3 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                        self.query1STSDT("10.in-addr.reverse.", recursiva, ip, porta, s3, all) # Primeira query ao SP (dom e 'NS')
+                        ip, porta = self.query2SDT("10.in-addr.reverse.", recursiva, ip, porta, s3, all) # Segunda query ao SP (nomeServerAut e 'A')
+
+                    elif dom.count('.') == 2: # Significa que a query é sobre um sub-domínio
                         # Temos que primeiro perguntar ao ST a informação sobre os servidores autoritários do domínio principal
                         domDom = dom.split(".")[1]
                         domDom += "."
@@ -167,8 +181,8 @@ class Query:
 
                         # Envia query ao SDT para receber a informação sobre os servidor autoritários do seu sub-domínio
                         s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                        self.query1STSDT(dom, recursiva, ip, porta, s2, all) # Primeira query ao ST (dom e 'NS')
-                        ip, porta = self.query2SDT(dom, recursiva, ip, porta, s2, all) # Segunda query ao ST (nomeServerAut e 'A')
+                        self.query1STSDT(dom, recursiva, ip, porta, s2, all) # Primeira query ao SDT (dom e 'NS')
+                        ip, porta = self.query2SDT(dom, recursiva, ip, porta, s2, all) # Segunda query ao SDT (nomeServerAut e 'A')
 
                     else: # Significa que a query é sobre um domínio principal
                         self.query1STSDT(dom, recursiva, ip, porta, s, all) # Primeira query ao ST (dom e 'NS')
@@ -208,7 +222,7 @@ class Query:
         flags = 'Q'
         if recursiva:
             flags += '+R'
-        
+
         index = self.cache.procuraEntradaValid(1, dom, 'NS')
         if index > -1 and index <= self.cache.nrEntradas:
             nomeAutoritativo = self.cache.cache[index-1][2]
@@ -237,8 +251,8 @@ class Query:
         index = self.cache.procuraEntradaValid(1, dom, 'NS')
         if index > -1 and index <= self.cache.nrEntradas:
             nomeAutoritativo = self.cache.cache[index-1][2]
-            domDom = dom.split(".")[1]
-            nomeAut = nomeAutoritativo.replace("." + domDom + ".", "")
+            lista = nomeAutoritativo.split(".")
+            nomeAut = lista[0] + "." + lista[1]
         
         querySDT = msgId + "," + flags + ",0,0,0,0;" + nomeAut + ",A;"
 

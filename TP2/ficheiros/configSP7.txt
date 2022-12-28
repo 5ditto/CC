@@ -1,0 +1,4 @@
+# Configuration file for primary server for 10.in-addr.reverse
+10.in-addr.reverse DB /home/core/Desktop/CCTP2/ficheiros/baseDadosSP7.txt
+10.in-addr.reverse LG /home/core/Desktop/CCTP2/ficheiros/logsSP7.log
+root ST /home/core/Desktop/CCTP2/ficheiros/sts.txt

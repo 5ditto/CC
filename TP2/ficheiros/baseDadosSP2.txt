@@ -1,6 +1,4 @@
 # DNS database file for domain classico.lon3r
-# It also includes a pointer to the primary server
-# of the smaller.classico.lon3r subdomain
 @ DEFAULT classico.lon3r.
 TTL DEFAULT 86400
 @ SOASP ns1.classico.lon3r. TTL
@@ -12,13 +10,11 @@ TTL DEFAULT 86400
 @ NS ns1.classico.lon3r. TTL
 @ NS ns2.classico.lon3r. TTL
 @ NS ns3.classico.lon3r. TTL
-Smaller.@ NS sp.smaller.classico.lon3r.
 @ MX mx1.classico.lon3r. TTL 10
 @ MX mx2.classico.lon3r. TTL 20
 ns1 A 193.136.130.250 TTL
 ns2 A 193.137.100.250 TTL
 ns3 A 193.136.130.251 TTL
-sp.smaller A 193.140.90.11 TTL
 mx1 A 193.136.130.200 TTL
 mx2 A 193.136.130.201 TTL
 www A 193.136.130.80 TTL 200

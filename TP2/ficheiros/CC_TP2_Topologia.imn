@@ -1394,7 +1394,7 @@ annotation a15 {
     label {10.in-addr.reverse}
     labelcolor black
     fontfamily {Arial}
-    fontsize 12
+    fontsize {12}
     color #8900cb
     width 0
     border black
