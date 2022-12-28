@@ -31,6 +31,7 @@ class Logs:
             f.close()
 
         if fileLogsAll != '':
+            print("Caminho do logsAll: " + self.fileLogsAll)
             fAll = open(self.fileLogsAll, "a")
             fAll.write(fstLine)
             fAll.close()
@@ -56,6 +57,7 @@ class Logs:
             logging.info(string)
         else:
             if all:
+                print("ALL!")
                 logging.basicConfig(filename = self.fileLogsAll, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
                 logging.info(string)
             else:

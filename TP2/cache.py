@@ -92,10 +92,11 @@ class Cache:
             self.cache[index][5] = origin
             self.cache[index][6] = datetime.now()
             self.cache[index][8] = 'VALID'
+            return index
         elif origin == 'OTHERS':
             index = self.procuraEntradaCompleta(name, typeValue, value, order)
             if index >= 0 and index <= 300 and (self.cache[index][5] == 'SP' or self.cache[index][5] == 'FILE'):
-                return False
+                return -1
             elif index >= 0 and index <= 300 and self.cache[index][5] == 'OTHERS':
                 self.cache[index][0] = name
                 self.cache[index][1] = typeValue
@@ -105,7 +106,7 @@ class Cache:
                 self.cache[index][5] = origin
                 self.cache[index][6] = datetime.now()
                 self.cache[index][8] = 'VALID'
-                return True
+                return index
             elif index == -1:
                 index = self.procuraUltimaEntradaFree()
                 self.cache[index][0] = name
@@ -116,7 +117,8 @@ class Cache:
                 self.cache[index][5] = origin
                 self.cache[index][6] = datetime.now()
                 self.cache[index][8] = 'VALID'
-
+                return index
+    
     def limpaCache(self, name):
 
         for i in range(300):
