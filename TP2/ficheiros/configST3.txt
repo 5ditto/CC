@@ -1,0 +1,4 @@
+# Configuration file for top server
+# Não tenho a certeza como é suposto ser o parâmetro (Perguntar como são os ficheiros config de ST's)
+todos DB /home/core/Desktop/CCTP2/ficheiros/baseDadosST.txt
+all LG /home/core/Desktop/CCTP2/ficheiros/logsST3.log

@@ -1,25 +1,15 @@
-# DNS database file for domain in-addr.reverse
-# It also includes a pointer to the primary server
-# of the 10.in-addr.reverse subdomain
-@ DEFAULT in-addr.reverse.
+# DNS database file for domain 10.in-addr.reverse
+@ DEFAULT 10.in-addr.reverse.
 TTL DEFAULT 86400
-@ SOASP ns1.in-addr.reverse. TTL
-@ SOAADMIN dns\.admin.in-addr.reverse. TTL
+@ SOASP ns1.10.in-addr.reverse. TTL
+@ SOAADMIN dns\.admin.10.in-addr.reverse. TTL
 @ SOASERIAL 0117102022 TTL
 @ SOAREFRESH 14400 TTL
 @ SOARETRY 3600 TTL
 @ SOAEXPIRE 604800 TTL
-@ NS ns1.in-addr.reverse. TTL
-10.@ NS sp.10.in-addr.reverse.
-@ MX mx1.reverse. TTL 10
-@ MX mx2.reverse. TTL 20
-ns1 A 10.0.28.10:53 TTL
-sp.10 A 10.0.23.10:53 TTL
-mx1 A 193.136.130.200 TTL
-mx2 A 193.136.130.201 TTL
-www A 193.136.130.80 TTL 200
-www A 193.136.130.81 TTL 200
-ftp A 193.136.130.20 TTL
+@ NS ns1.10.in-addr.reverse. TTL
+ns1 A 10.0.23.10:53 TTL
 sp CNAME ns1 TTL
-mail1 CNAME mx1 TTL
-mail2 CNAME mx2 TTL 
+10.18.0.@ PTR SP1.lon3r.
+10.25.0.@ PTR SS7.johny.
+11.24.0.@ PTR SR3.dubai.johny.

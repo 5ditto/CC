@@ -160,12 +160,8 @@ class Query:
                     if typeValue == 'PTR':
                         # Reverse mapping
                        
-                        self.query1STSDT("reverse.", recursiva, ip, porta, s, all) # Primeira query ao ST (dom e 'NS')
-                        ip, porta = self.query2ST("reverse.", recursiva, ip, porta, s, all) # Segunda query ao ST (nomeServerAut e 'A')
-                        
-                        s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                        self.query1STSDT("in-addr.reverse.", recursiva, ip, porta, s2, all) # Primeira query ao SDT (dom e 'NS')
-                        ip, porta = self.query2SDT("in-addr.reverse.", recursiva, ip, porta, s2, all) # Segunda query ao SDT (nomeServerAut e 'A')
+                        self.query1STSDT("in-addr.reverse.", recursiva, ip, porta, s, all) # Primeira query ao ST (dom e 'NS')
+                        ip, porta = self.query2ST("in-addr.reverse.", recursiva, ip, porta, s, all) # Segunda query ao ST (nomeServerAut e 'A')
                         
                         s3 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                         self.query1STSDT("10.in-addr.reverse.", recursiva, ip, porta, s3, all) # Primeira query ao SP (dom e 'NS')
@@ -239,6 +235,7 @@ class Query:
         index = self.registaRespostaEmCache(respString) # Regista a resposta na cache
         
         ipPortaServer = self.cache.cache[index][2]
+        print(ipPortaServer)
         lista = re.split(":", ipPortaServer)
         return (lista[0], lista[1])
 
