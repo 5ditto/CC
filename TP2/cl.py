@@ -21,4 +21,4 @@ class CL:
 
 cl = CL()
 respMsg, add = cl.query.enviaQuery()
-print(respMsg.decode('utf-8'))
+print(respMsg)

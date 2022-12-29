@@ -43,7 +43,7 @@ class Logs:
 
     # Se recebido == true então significa que o componente recebeu uma query, caso contrário foi ele que enviou uma query
     # O último argumento "all" representa se o logs vai para o logsAll ou para o normal
-    def QR_QE(self, recebido, endereco, infoQuery = '', all = False):
+    def QR_QE(self, recebido, endereco, infoQuery = '', debug = '', all = False):
         
         if recebido:
             string = "QR " + endereco + " " + infoQuery
@@ -62,10 +62,12 @@ class Logs:
                 logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
                 logging.info(string)
             
-        if self.modo == 'debug':
+        if self.modo == 'debug' and debug != '':
+            print(debug)
+        if self.modo == 'debug' and debug == '':
             print(string)
 
-    def RP_RR(self, recebido, endereco, infoQuery='', all = False):
+    def RP_RR(self, recebido, endereco, infoQuery='', debug = '', all = False):
 
         if recebido:
             string = "RR " + endereco + " " + infoQuery
@@ -83,10 +85,12 @@ class Logs:
                 logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
                 logging.info(string)
 
-        if self.modo == 'debug':
+        if self.modo == 'debug' and debug != '':
+            print(debug)
+        if self.modo == 'debug' and debug == '':
             print(string)
 
-    def ZT(self, ip, porta, role = '', time = '', totalbytes = '', all = False):
+    def ZT(self, ip, porta, role = '', time = '', totalbytes = '', debug = '', all = False):
         
         if time == '' and totalbytes == '':
             string = "ZT " + ip + ":" + porta + " " + role
@@ -104,10 +108,12 @@ class Logs:
                 logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
                 logging.info(string)
 
-        if self.modo == 'debug':
+        if self.modo == 'debug' and debug != '':
+            print(debug)
+        if self.modo == 'debug' and debug == '':
             print(string)
 
-    def EV(self, eventType, msg='', all = False):
+    def EV(self, eventType, msg='', debug = '', all = False):
 
         if msg:
             string = "EV 127.0.0.1 " + eventType + " " + msg 
@@ -125,10 +131,12 @@ class Logs:
                 logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
                 logging.info(string)
 
-        if self.modo == 'debug':
+        if self.modo == 'debug' and debug != '':
+            print(debug)
+        if self.modo == 'debug' and debug == '':
             print(string)
 
-    def ER(self, endereco, all = False):
+    def ER(self, endereco, debug = '', all = False):
         string = "ER " + endereco   
 
         if self.st:
@@ -142,10 +150,12 @@ class Logs:
                 logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
                 logging.info(string)
 
-        if self.modo == 'debug':
+        if self.modo == 'debug' and debug != '':
+            print(debug)
+        if self.modo == 'debug' and debug == '':
             print(string)
 
-    def EZ(self, ip, porta, role, all = False):
+    def EZ(self, ip, porta, role, debug = '', all = False):
 
         string = "EZ " + ip + ":" + porta + " " + role
 
@@ -160,10 +170,12 @@ class Logs:
                 logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
                 logging.info(string)
         
-        if self.modo == 'debug':
+        if self.modo == 'debug' and debug != '':
+            print(debug)
+        if self.modo == 'debug' and debug == '':
             print(string)
 
-    def FL(self, errorType, all = False):
+    def FL(self, errorType, debug = '', all = False):
         string = "FL 127.0.0.1 " + errorType
 
         if self.st:
@@ -177,10 +189,12 @@ class Logs:
                 logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
                 logging.info(string)
         
-        if self.modo == 'debug':
+        if self.modo == 'debug' and debug != '':
+            print(debug)
+        if self.modo == 'debug' and debug == '':
             print(string)
 
-    def TO(self, timeoutType, all = False):
+    def TO(self, timeoutType, debug = '', all = False):
         string = "TO " + timeoutType
 
         if self.st:
@@ -194,10 +208,12 @@ class Logs:
                 logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
                 logging.info(string)
         
-        if self.modo == 'debug':
+        if self.modo == 'debug' and debug != '':
+            print(debug)
+        if self.modo == 'debug' and debug == '':
             print(string)
 
-    def SP(self, reason, all = False):
+    def SP(self, reason, debug = '', all = False):
         string = "SP 127.0.0.1 " + reason
 
         if self.st:
@@ -211,10 +227,12 @@ class Logs:
                 logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
                 logging.info(string)
         
-        if self.modo == 'debug':
+        if self.modo == 'debug' and debug != '':
+            print(debug)
+        if self.modo == 'debug' and debug == '':
             print(string)
 
-    def ST(self, port, timeout, mode, all = False):
+    def ST(self, port, timeout, mode, debug = '', all = False):
         string = "ST 127.0.0.1 " + port + " " + timeout + " " + mode
         
         if self.st:
@@ -228,5 +246,7 @@ class Logs:
                 logging.basicConfig(filename = self.fileLogs, filemode="a", level=logging.INFO, format= "%(asctime)s.%(msecs)03d %(message)s", datefmt='%d:%m:%Y.%H:%M:%S')
                 logging.info(string)
         
-        if self.modo == 'debug':
+        if self.modo == 'debug' and debug != '':
+            print(debug)
+        if self.modo == 'debug' and debug == '':
             print(string)

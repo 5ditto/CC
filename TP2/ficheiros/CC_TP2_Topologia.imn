@@ -693,7 +693,7 @@ node n42 {
     type router
     model host
     network-config {
-	hostname SP5
+	hostname ST3
 	!
 	interface eth0
 	 ip address 10.0.27.10/24
@@ -925,7 +925,7 @@ node n43 {
     type router
     model host
     network-config {
-	hostname SP6
+	hostname SP5
 	!
 	interface eth0
 	 ip address 10.0.28.10/24
@@ -942,7 +942,7 @@ node n44 {
     type router
     model host
     network-config {
-	hostname SP7
+	hostname SP6
 	!
 	interface eth0
 	 ip address 10.0.23.10/24

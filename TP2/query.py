@@ -1,6 +1,7 @@
 import socket
 import re
 import random
+from dnsMessageBinary import DNSMessageBinary
 
 class Query:
 
@@ -23,31 +24,31 @@ class Query:
             self.name = name
             self.typeValue = typeValue
     
-    def geraRespQuery(self, msgQuery, autoritativo = False): 
+    def geraRespQuery(self, dnsMessage1, autoritativo = False): 
         respQuery = ''
-        
-        lista = re.split(";", msgQuery)
-        headerFields = re.split(',', lista[0])
-        queryInfo = re.split(',', lista[1])
-        respQuery += headerFields[0]
 
         nameDom = self.dom.name + '.'
 
-        all = self.compareDoms(queryInfo[0])
+        all = self.compareDoms(dnsMessage1.dom)
 
         # Flags:
-        if queryInfo[0] == nameDom and autoritativo:
-            headerFields[1] += '+A'
+        flags = ''
+        if dnsMessage1.dom == nameDom and autoritativo:
+            flags += 'A+'
+        if 'R' in dnsMessage1.flags:
+            flags += 'R'
             
+        respQuery += str(dnsMessage1.messageId) + "," + flags
+
         extraValues = ''
         # Response Code:
-        index = self.cache.procuraEntradaValid(1, queryInfo[0], queryInfo[1])
+        index = self.cache.procuraEntradaValid(1, dnsMessage1.dom, dnsMessage1.typeValue)
         if index <= self.cache.nrEntradas and index >= 0:
             responseCode = '0'
             respValues = ''
             nrval = 0
 
-            listaIndex = self.cache.todasEntradasValid(1, queryInfo[0], queryInfo[1])
+            listaIndex = self.cache.todasEntradasValid(1, dnsMessage1.dom, dnsMessage1.typeValue)
             for index in listaIndex:
                 respValues += self.cache.entrada(index) + ";"
                 nrval += 1
@@ -57,7 +58,7 @@ class Query:
                 i = self.cache.procuraEntradaValid(1, comp, 'A')
                 extraValues += self.cache.entrada(i) + ";"
 
-        elif queryInfo[0] == nameDom:
+        elif dnsMessage1.dom == nameDom:
             responseCode = '1'
             nrval = 0
             respValues = ''
@@ -81,38 +82,51 @@ class Query:
             extraValues += self.cache.entrada(i) + ";"
 
         nrAutoridades = str(nrAutorithies)
+        nrExtra = nrval + nrAutorithies
         nrExtraValues = str(nrval + nrAutorithies)   
-        respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + lista[1] + ";"
+        respQuery += "," + nrAutoridades + "," + nrExtraValues + ";" + dnsMessage1.dom + "," + dnsMessage1.typeValue + ";"
         respQuery += respValues
         if nrAutorithies > 0:
             respQuery += authorities
         if nrval + nrAutorithies > 0 and nrAutorithies > 0:
             respQuery += extraValues 
-        return (respQuery, all)
+
+        dnsMessage2 = DNSMessageBinary(dnsMessage1.messageId, flags, responseCode, nrval, nrAutorithies, nrExtra, dnsMessage1.dom, dnsMessage1.typeValue, respValues, authorities, extraValues)
+
+        return (respQuery, dnsMessage2, all)
 
     def recebeQuerys(self, autoritativo = False):
         while True:
-            msg, add = self.socketUDP.recvfrom(1024)
-            msgString = msg.decode('utf-8')
+            bytes, add = self.socketUDP.recvfrom(1024)
+            dnsMessage1 = DNSMessageBinary.deconvertMessage(bytes)
+            debug = dnsMessage1.dnsMessageDebug(True) # True porque se trata de um pedido de query
+            logs = dnsMessage1.dnsMessageLogs(True) # True porque se trata de um pedido de query
 
-            msgResp, all = self.geraRespQuery(msgString, autoritativo)
-            self.logs.QR_QE(True, str(add), msgString, all)
+            msgResp, dnsMessage2, all = self.geraRespQuery(dnsMessage1, autoritativo)
+            self.logs.QR_QE(True, str(add), logs, debug, all)
+            bytes = dnsMessage2.convertMessage()
+            debug = dnsMessage2.dnsMessageDebug(False) # False porque é a resposta a uma query 
+            logs = dnsMessage2.dnsMessageLogs(False) # False porque é a resposta a uma query 
 
-            self.socketUDP.sendto(msgResp.encode('utf-8'), add)
-            self.logs.RP_RR(False, str(add), msgResp, all)
+            self.socketUDP.sendto(bytes, add)
+            self.logs.RP_RR(False, str(add), logs, debug, all)
 
     def geraMsgQuery(self):
-        msgId = str(random.randint(1, 65535))
+        msgId = random.randint(1, 65535)
         flags = 'Q'
+
         if self.recursiva:
             flags += '+R'
-        return msgId + "," + flags + "," + "0,0,0,0" + ";" + self.name + "," + self.typeValue + ";" 
+
+        return DNSMessageBinary(msgId,flags,"0",0,0,0,self.name,self.typeValue,"","","")
 
     def enviaQuery(self):
-        msg = self.geraMsgQuery()
-        self.socketUDP.sendto(msg.encode('utf-8'), (self.ipServer, int(self.porta)))
-        respMsg, add = self.socketUDP.recvfrom(1024)
-        return (respMsg, add)
+        dnsMessage1 = self.geraMsgQuery()
+        bytes = dnsMessage1.convertMessage()
+        self.socketUDP.sendto(bytes, (self.ipServer, int(self.porta)))
+        bytes, add = self.socketUDP.recvfrom(1024)
+        dnsMessage2 = DNSMessageBinary.deconvertMessage(bytes)
+        return (dnsMessage2.dnsMessageDebug(False), add)
 
     # Cenas do SR
 
@@ -121,43 +135,53 @@ class Query:
     # Se não, o SR pede a informação ao servidor autoritativo do domínio em questão
     def recebeQuerysDoCL(self):
         while True:
-            msg, add = self.socketUDP.recvfrom(1024)
-            self.logs.QR_QE(True, str(add), msg.decode('utf-8'))
+            bytes, add = self.socketUDP.recvfrom(1024)
+            dnsMessage1 = DNSMessageBinary.deconvertMessage(bytes)
+            logs = dnsMessage1.dnsMessageLogs(True) # True porque é um pedido de query
+            debug = dnsMessage1.dnsMessageDebug(True) # True porque é um pedido de query
+            self.logs.QR_QE(True, str(add), logs, debug)
 
-            pedido = msg.decode('utf-8')
-            splited1 = re.split(";", pedido)
-            splited2 = re.split(",", splited1[1])
-            splited3 = re.split(",", splited1[0])
-            dom = splited2[0]
-            typeValue = splited2[1] 
+            # pedido = msg.decode('utf-8')
+            # splited1 = re.split(";", pedido)
+            # splited2 = re.split(",", splited1[1])
+            # splited3 = re.split(",", splited1[0])
+            # dom = splited2[0]
+            # typeValue = splited2[1] 
 
             # All indica se o ficheiro losg a usar é o logs normal ou o logs all
-            all = self.compareDoms(dom)
+            all = self.compareDoms(dnsMessage1.dom)
             
-            index = self.cache.procuraEntradaValid(1,dom,typeValue)
+            index = self.cache.procuraEntradaValid(1, dnsMessage1.dom, dnsMessage1.typeValue)
             if index >= 0 and index <= self.cache.nrEntradas: # Temos a resposta em cache logo é só responder diretamente ao CL
-                respString = self.geraRespQuery(pedido, False)
+                respString, dnsMessage2, all = self.geraRespQuery(dnsMessage1, False)
+                bytes = dnsMessage2.convertMessage()
+                logsSV = dnsMessage2.dnsMessageLogs(False) # False porque se trata da resposta a uma query
+                debugSV = dnsMessage2.dnsMessageDebug(False) # False porque se trata da resposta a uma query
             else: # A resposta à query não está em cache logo vamos ter que perguntar aos servidores
                 nameDom = self.dom.name + "."
-                if nameDom == dom and len(self.dom.endDD) > 0:
+                if nameDom == dnsMessage1.dom and len(self.dom.endDD) > 0:
                     splited = re.split(":", self.dom.endDD[0])
                     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                    s.sendto(msg, (splited[0], int(splited[1]))) 
-                    self.logs.QR_QE(False, self.dom.endDD[0], msg.decode('utf-8'), all)
-                    resp, add2 = s.recvfrom(1024)
-                    respString = resp.decode('utf-8')
-                    self.logs.RP_RR(True, str(add2), respString, all)
-                    self.registaRespostaEmCache(respString)
+                    s.sendto(bytes, (splited[0], int(splited[1]))) 
+                    self.logs.QR_QE(False, self.dom.endDD[0], logs, debug, all)
+
+                    bytes, add2 = s.recvfrom(1024)
+                    dnsMessage2 = DNSMessageBinary.deconvertMessage(bytes)
+                    logsSV = dnsMessage2.dnsMessageLogs(False) # False porque se trata da resposta a uma query
+                    debugSV = dnsMessage2.dnsMessageDebug(False) # False porque se trata da resposta a uma query
+                    # respString = resp.decode('utf-8')
+                    self.logs.RP_RR(True, str(add2), logsSV, debugSV, all)
+                    self.registaRespostaEmCache(dnsMessage2)
                 else:
                     # Não existe numa entrada DD sobre o domínio em questão para obter a resposta diretamente, logo vamos perguntar ao ST
                     recursiva = False
-                    if 'R' in splited3[1]:
+                    if 'R' in dnsMessage1.flags:
                         recursiva = True
                     
                     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
                     ip, porta = self.dom.endSTs[0]
                     
-                    if typeValue == 'PTR':
+                    if dnsMessage1.typeValue == 'PTR':
                         # Reverse mapping
                        
                         self.query1STSDT("in-addr.reverse.", recursiva, ip, porta, s, all) # Primeira query ao ST (dom e 'NS')
@@ -167,9 +191,9 @@ class Query:
                         self.query1STSDT("10.in-addr.reverse.", recursiva, ip, porta, s3, all) # Primeira query ao SP (dom e 'NS')
                         ip, porta = self.query2SDT("10.in-addr.reverse.", recursiva, ip, porta, s3, all) # Segunda query ao SP (nomeServerAut e 'A')
 
-                    elif dom.count('.') == 2: # Significa que a query é sobre um sub-domínio
+                    elif dnsMessage1.dom.count('.') == 2: # Significa que a query é sobre um sub-domínio
                         # Temos que primeiro perguntar ao ST a informação sobre os servidores autoritários do domínio principal
-                        domDom = dom.split(".")[1]
+                        domDom = dnsMessage1.dom.split(".")[1]
                         domDom += "."
 
                         self.query1STSDT(domDom, recursiva, ip, porta, s, all) # Primeira query ao ST (dom e 'NS')
@@ -177,44 +201,54 @@ class Query:
 
                         # Envia query ao SDT para receber a informação sobre os servidor autoritários do seu sub-domínio
                         s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                        self.query1STSDT(dom, recursiva, ip, porta, s2, all) # Primeira query ao SDT (dom e 'NS')
-                        ip, porta = self.query2SDT(dom, recursiva, ip, porta, s2, all) # Segunda query ao SDT (nomeServerAut e 'A')
+                        self.query1STSDT(dnsMessage1.dom, recursiva, ip, porta, s2, all) # Primeira query ao SDT (dom e 'NS')
+                        ip, porta = self.query2SDT(dnsMessage1.dom, recursiva, ip, porta, s2, all) # Segunda query ao SDT (nomeServerAut e 'A')
 
                     else: # Significa que a query é sobre um domínio principal
-                        self.query1STSDT(dom, recursiva, ip, porta, s, all) # Primeira query ao ST (dom e 'NS')
-                        ip, porta = self.query2ST(dom, recursiva, ip, porta, s, all) # Segunda query ao ST (nomeServerAut e 'A')
+                        self.query1STSDT(dnsMessage1.dom, recursiva, ip, porta, s, all) # Primeira query ao ST (dom e 'NS')
+                        ip, porta = self.query2ST(dnsMessage1.dom, recursiva, ip, porta, s, all) # Segunda query ao ST (nomeServerAut e 'A')
 
                     # Fazemos a query, depois enviamos a resposta para o cliente
                     s1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
-                    s1.sendto(msg, (ip, int(porta))) # Envia a query para o server autoritativo do dominio
-                    self.logs.QR_QE(False, ip + ":" + porta, pedido, all)
-                    resp, add2 = s1.recvfrom(1024) # Recebe resposta do server autoritativo do dominio
-                    respString = resp.decode('utf-8')
-                    self.logs.RP_RR(True, str(add2), respString, all)
-                    self.registaRespostaEmCache(respString)
+                    s1.sendto(bytes, (ip, int(porta))) # Envia a query para o server autoritativo do dominio
+                    self.logs.QR_QE(False, ip + ":" + porta, logs, debug, all)
+
+                    bytes, add2 = s1.recvfrom(1024) # Recebe resposta do server autoritativo do dominio
+                    dnsMessageSV = DNSMessageBinary.deconvertMessage(bytes)
+                    logsSV = dnsMessageSV.dnsMessageLogs(False) # False porque se trata da resposta a uma query
+                    debugSV = dnsMessageSV.dnsMessageDebug(False) # False porque se trata da resposta a uma query
+                    self.logs.RP_RR(True, str(add2), logsSV, debugSV, all)
+                    self.registaRespostaEmCache(dnsMessageSV)
 
             # Envia a resposta para o cliente
-            self.socketUDP.sendto(respString.encode('utf-8'), add)
-            self.logs.RP_RR(False, str(add), resp.decode('utf-8'), all)
+
+            self.socketUDP.sendto(bytes, add)
+            self.logs.RP_RR(False, str(add), logsSV, debugSV, all)
 
     def query1STSDT(self, dom, recursiva, ip, porta, s, all):
-        msgId = str(random.randint(1, 65535))
+        msgId = random.randint(1, 65535)
         flags = 'Q'
         if recursiva:
             flags += '+R'
         
-        queryST = msgId + "," + flags + ",0,0,0,0;" + dom + ",NS;"
+        # queryST = msgId + "," + flags + ",0,0,0,0;" + dom + ",NS;"
+        dnsMessage1 = DNSMessageBinary(msgId, flags, "0", 0, 0, 0, dom, "NS", "", "", "")
+        bytes1 = dnsMessage1.convertMessage()
+        logs1 = dnsMessage1.dnsMessageLogs(True) # True porque se trata de um pedido de uma query
+        debug1 = dnsMessage1.dnsMessageDebug(True) # True porque se trata de um pedido de uma query
 
-        s.sendto(queryST.encode('utf-8'), (ip, int(porta))) # Envia query ao ST
-        self.logs.QR_QE(False, ip + ":" + porta, queryST, all)
+        s.sendto(bytes1, (ip, int(porta))) # Envia query ao ST
+        self.logs.QR_QE(False, ip + ":" + porta, logs1, debug1, all)
 
-        resp, add2 = s.recvfrom(1024) # Recebe resposta do ST
-        respString = resp.decode('utf-8')
-        self.logs.RP_RR(True, str(add2), respString, all)
-        self.registaRespostaEmCache(respString) # Regista a resposta na cache
+        bytes2, add2 = s.recvfrom(1024) # Recebe resposta do ST
+        dnsMessage2 = DNSMessageBinary.deconvertMessage(bytes2)
+        logs2 = dnsMessage2.dnsMessageLogs(False) # False porque se trata de uma resposta a uma query
+        debug2 = dnsMessage2.dnsMessageDebug(False) # False porque se trata de uma resposta a uma query
+        self.logs.RP_RR(True, str(add2), logs2, debug2, all)
+        self.registaRespostaEmCache(dnsMessage2) # Regista a resposta na cache
 
     def query2ST(self, dom, recursiva, ip, porta, s, all):
-        msgId = str(random.randint(1, 65535))
+        msgId = random.randint(1, 65535)
         flags = 'Q'
         if recursiva:
             flags += '+R'
@@ -224,15 +258,20 @@ class Query:
             nomeAutoritativo = self.cache.cache[index-1][2]
             nomeAut = nomeAutoritativo.replace("." + dom, "")
 
-        queryST = msgId + "," + flags + ",0,0,0,0;" + nomeAut + ",A;"
+        # queryST = msgId + "," + flags + ",0,0,0,0;" + nomeAut + ",A;"
+        dnsMessage1 = DNSMessageBinary(msgId, flags, "0", 0, 0, 0, nomeAut, "A", "", "", "")
+        bytes = dnsMessage1.convertMessage()
+        logs1 = dnsMessage1.dnsMessageLogs(True) # True porque se trata de um pedido de uma query
+        debug1 = dnsMessage1.dnsMessageDebug(True) # True porque se trata de um pedido de uma query
+        s.sendto(bytes, (ip, int(porta))) # Envia a segunda query ao ST
+        self.logs.QR_QE(False, ip + ":" + porta, logs1, debug1, all)
 
-        s.sendto(queryST.encode('utf-8'), (ip, int(porta))) # Envia a segunda query ao ST
-        self.logs.QR_QE(False, ip + ":" + porta, queryST, all)
-
-        resp, add2 = s.recvfrom(1024) # Recebe a segunda resposta do ST
-        respString = resp.decode('utf-8')
-        self.logs.RP_RR(True, str(add2), respString, all)
-        index = self.registaRespostaEmCache(respString) # Regista a resposta na cache
+        bytes2, add2 = s.recvfrom(1024) # Recebe a segunda resposta do ST
+        dnsMessage2 = DNSMessageBinary.deconvertMessage(bytes2)
+        logs2 = dnsMessage2.dnsMessageLogs(False) # False porque se trata de uma resposta a uma query
+        debug2 = dnsMessage1.dnsMessageDebug(False) # False porque se trata de uma resposta a uma query
+        self.logs.RP_RR(True, str(add2), logs2, debug2, all)
+        index = self.registaRespostaEmCache(dnsMessage2) # Regista a resposta na cache
         
         ipPortaServer = self.cache.cache[index][2]
         print(ipPortaServer)
@@ -240,7 +279,7 @@ class Query:
         return (lista[0], lista[1])
 
     def query2SDT(self, dom, recursiva, ip, porta, s, all):
-        msgId = str(random.randint(1, 65535))
+        msgId = random.randint(1, 65535)
         flags = 'Q'
         if recursiva:
             flags += '+R'
@@ -251,46 +290,38 @@ class Query:
             lista = nomeAutoritativo.split(".")
             nomeAut = lista[0] + "." + lista[1]
         
-        querySDT = msgId + "," + flags + ",0,0,0,0;" + nomeAut + ",A;"
+        # querySDT = msgId + "," + flags + ",0,0,0,0;" + nomeAut + ",A;"
+        dnsMessage1 = DNSMessageBinary(msgId, flags, "0", 0, 0, 0, nomeAut, "A", "", "", "")
+        bytes = dnsMessage1.convertMessage()
+        logs1 = dnsMessage1.dnsMessageLogs(True) # True porque se trata de um pedido de uma query
+        debug1 = dnsMessage1.dnsMessageDebug(True) # True porque se trata de um pedido de uma query
+        s.sendto(bytes, (ip, int(porta))) # Envia a segunda query ao ST
+        self.logs.QR_QE(False, ip + ":" + porta, logs1, debug1, all)
 
-        s.sendto(querySDT.encode('utf-8'), (ip, int(porta))) # Envia a segunda query ao ST
-        self.logs.QR_QE(False, ip + ":" + porta, querySDT, all)
-
-        resp, add2 = s.recvfrom(1024) # Recebe a segunda resposta do ST
-        respString = resp.decode('utf-8')
-        self.logs.RP_RR(True, str(add2), respString, all)
-        self.registaRespostaEmCache(respString) # Regista a resposta na cache
+        bytes2, add2 = s.recvfrom(1024) # Recebe a segunda resposta do ST
+        dnsMessage2 = DNSMessageBinary.deconvertMessage(bytes2)
+        logs2 = dnsMessage2.dnsMessageLogs(False) # False porque se trata de uma resposta a uma query
+        debug2 = dnsMessage2.dnsMessageDebug(False) # False porque se trata de uma resposta a uma query
+        self.logs.RP_RR(True, str(add2), logs2, debug2, all)
+        self.registaRespostaEmCache(dnsMessage2) # Regista a resposta na cache
 
         index = self.cache.procuraEntradaValid(1, nomeAut, 'A')
         ipPorta = self.cache.cache[index-1][2]
         lista = re.split(":", ipPorta)
         return (lista[0], lista[1])
 
-
-    def serverAutoritario(self, dom):
-        index = self.cache.procuraEntradaValid(1, dom, 'NS')
-        nome = self.cache.cache[index-1][2]
-        nome2 = nome.replace("." + dom, "")
-        print("Nome: " + nome2)
-        index = self.cache.procuraEntradaValid(1, nome2, 'A')
-        ipPortaServer = self.cache.cache[index-1][2]
-        print("ipPortaServer: " + ipPortaServer)
-        lista = re.split(":", ipPortaServer)
-        return (lista[0], lista[1])
-
-    def registaRespostaEmCache(self, respQuery):
+    def registaRespostaEmCache(self, dnsMessage):
         index = -1
-        lista = re.split(';', respQuery)
-        
+
+        aRegistar = dnsMessage.respValues + dnsMessage.autValues + dnsMessage.extraValues
+        lista = re.split(';', aRegistar)
+
         i = 0
         for elem in lista:
             lista[i] = re.split(' ', elem)
             i += 1
 
-        # Retira o cabeçalho da query
-        lista.pop(0)
-        lista.pop(0)
-        lista.pop(len(lista)-1)
+        print(lista)
 
         for entrada in lista:
             if len(entrada) > 1:
