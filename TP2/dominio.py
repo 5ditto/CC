@@ -13,7 +13,7 @@ class Dominio:
         self.ficheiroLogs = ''
         self.endSP = ''
         self.endSS = [] # Lista de strings dos ip's dos SS 
-        self.endDD = [] # Lista de endereços que têm permissão para fazer queries sobre este domínio (no caso de ser SS ou SP)
+        self.endDD = dict() # Dicionário de endereços que têm permissão para fazer queries sobre este domínio (no caso de ser SS ou SP)
         # No caso de ser um SR representa a lista de servidores que se podem contactar diretamente para fazer querys
         # No caso de ser um SR, a lista representa o endereço para o qual o SR deve encaminhar as queries sempre que não tenha a resposta na sua cache
         self.endSTs = []
@@ -40,7 +40,10 @@ class Dominio:
                         self.endSS.append(lista[2].replace('\n', ''))
                     
                     if lista[1] == 'DD':
-                        self.endDD.append(lista[2].replace('\n', ''))
+                        dominio = lista[0] + "."
+                        if(dominio not in self.endDD.keys()):
+                            self.endDD[dominio] = []
+                        self.endDD[dominio].append(lista[2].replace("\n",""))
                     
                     if lista[1] == 'LG':
                         self.ficheiroLogs = lista[2].replace('\n', '')

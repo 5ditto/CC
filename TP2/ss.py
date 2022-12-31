@@ -20,10 +20,8 @@ class SS:
         self.cache = Cache()
         self.versaoDB = -1
         self.query = Query(True, self.dom, self.cache, self.logs, self.portaAtendimento)
-        # self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        # self.socketUDP.bind(('', int(self.portaAtendimento)))
         # Thread que vai estar sempre à espera de novas querys
-        threading.Thread(target = self.query.recebeQuerys, args=(True)).start()
+        threading.Thread(target = self.query.recebeQuerys, args = ([True])).start()
     
     def encontraNomeTTLDom(self, lista):
         name = ''
