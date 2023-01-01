@@ -155,14 +155,12 @@ class Query:
             
             index = self.cache.procuraEntradaValid(1, dnsMessage1.dom, dnsMessage1.typeValue)
             if index >= 0 and index <= self.cache.nrEntradas: # Temos a resposta em cache logo é só responder diretamente ao CL
-                print("\n\n\nTenho a resposta em cache!\n\n\n")
                 respString, dnsMessage2, all = self.geraRespQuery(dnsMessage1, False)
                 bytes = dnsMessage2.convertMessage()
                 logsSV = dnsMessage2.dnsMessageLogs(False) # False porque se trata da resposta a uma query
                 debugSV = dnsMessage2.dnsMessageDebug(False) # False porque se trata da resposta a uma query
             else: # A resposta à query não está em cache logo vamos ter que perguntar aos servidores
                 if (dnsMessage1.dom in self.dom.endDD.keys()) and len(self.dom.endDD[dnsMessage1.dom]) > 0: # Tenho pelo menos uma entrada DD para aquele dominio
-                    print("\n\n\nTenho uma entrada DD!\n\n\n")
                     splited = re.split(":", self.dom.endDD[dnsMessage1.dom][0])
                     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                     s.sendto(bytes, (splited[0], int(splited[1]))) 
@@ -177,7 +175,6 @@ class Query:
                     self.registaRespostaEmCache(dnsMessage2)
                 else:
                     # Não existe numa entrada DD sobre o domínio em questão para obter a resposta diretamente, logo vamos perguntar ao ST
-                    print("\n\n\nVou perguntar ao ST!\n\n\n")
                     resposta = False
                     recursiva = False
                     if 'R' in dnsMessage1.flags:
@@ -188,7 +185,6 @@ class Query:
                     
                     if dnsMessage1.typeValue == 'PTR':
                         # Reverse mapping
-                        
                         ip, porta = self.dom.endSTs[2]
                         dnsMessage2 = DNSMessageBinary(random.randint(1, 65535), dnsMessage1.flags, "0", 0, 0, 0, "in-addr.reverse.", dnsMessage1.typeValue, "", "", "")
                         resposta, ip, porta = self.queryAoServer(s, dnsMessage2, ip, porta)
@@ -199,7 +195,6 @@ class Query:
 
                     elif dnsMessage1.dom.count('.') == 2: # Significa que a query é sobre um sub-domínio
                         # Temos que primeiro perguntar ao ST a informação sobre os servidores autoritários do domínio principal
-                        print("Query sobre um sub-domínio!")
                         domDom = dnsMessage1.dom.split(".")[1]
                         domDom += "."
                         dnsMessage2 = DNSMessageBinary(dnsMessage1.messageId, dnsMessage1.flags, dnsMessage1.responseCode, dnsMessage1.nrValues, dnsMessage1.nrAut, dnsMessage1.nrExtra, domDom, dnsMessage1.typeValue, "", "", "")

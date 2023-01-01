@@ -49,6 +49,7 @@ class DNSMessageBinary():
         return ""
 
     def convertTypeValue(self):
+        tv = 0
 
         if self.typeValue == "DEFAULT":
             tv = 1
@@ -75,7 +76,7 @@ class DNSMessageBinary():
         if self.typeValue == "PTR":
             tv = 12
 
-        # 1 byte chega para representar os inteiros de 1 a 12
+        # 1 byte chega para representar os inteiros de 0 a 12
         bytes = tv.to_bytes(1, byteorder="big")
 
         return bytes
@@ -107,6 +108,8 @@ class DNSMessageBinary():
             return "MX"
         if tv == 12:
             return "PTR"
+        if tv == 0:
+            print("Campo TypeValue inválido!")
 
         return ""
 
