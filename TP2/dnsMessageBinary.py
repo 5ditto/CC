@@ -15,7 +15,9 @@ class DNSMessageBinary():
         self.extraValues = extraValues
 
     def convertFlags(self):
-
+        
+        if self.flags == "":
+            flags = 0
         if self.flags == "Q": 
             flags = 1
         if self.flags == "R":
@@ -35,6 +37,8 @@ class DNSMessageBinary():
     @classmethod
     def deconvertFlags(self, flags):
 
+        if flags == 0:
+            return ""
         if flags == 1:
             return "Q"
         if flags == 2:
@@ -230,6 +234,14 @@ class DNSMessageBinary():
         extraValues = ev.decode('utf-8')
 
         return DNSMessageBinary(mesageId,flags,responseCode,nrRespValues,nrAut,nrExtraValues,dom,typeValue,respValues,autValues,extraValues)
+
+    def retiraFlagA(self):
+
+        if "A" in self.flags:
+            if "+" in self.flags: # A+R
+                self.flags = self.flags.replace("A+", "")
+            else:
+                self.flags = self.flags.replace("A", "")
 
     def __str__(self):
         string = "Message Id: " + str(self.messageId) + ", Flags: " + self.flags + ", Response Code: " + self.responseCode + "\n"

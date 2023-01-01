@@ -19,4 +19,4 @@ class ST:
         self.query = Query(True, self.dom, self.cache, self.logs, self.portaAtendimento)
         
 st = ST()
-st.query.recebeQuerys() # Verificar se o ST é autoritativo ou não!!
+st.query.recebeQuerys(True)

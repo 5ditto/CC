@@ -33,10 +33,12 @@ class Query:
 
         # Flags:
         flags = ''
-        if dnsMessage1.dom == nameDom and autoritativo:
-            flags += 'A+'
-        if 'R' in dnsMessage1.flags:
+        if autoritativo and 'R' in dnsMessage1.flags:
+            flags += 'A+R'
+        elif 'R' in dnsMessage1.flags:
             flags += 'R'
+        elif autoritativo:
+            flags += 'A'
             
         respQuery += str(dnsMessage1.messageId) + "," + flags
 
@@ -220,8 +222,13 @@ class Query:
                         self.registaRespostaEmCache(dnsMessageSV)
 
             # Envia a resposta para o cliente
-            self.socketUDP.sendto(bytes, add)
-            self.logs.RP_RR(False, str(add), logsSV, debugSV, all)
+            dnsMessageFinal = DNSMessageBinary.deconvertMessage(bytes)
+            dnsMessageFinal.retiraFlagA()
+            logsF = dnsMessageFinal.dnsMessageLogs(False) # False porque se trata da resposta a uma query
+            debugF = dnsMessageFinal.dnsMessageDebug(False) # False porque se trata da resposta a uma query
+            bytesF = dnsMessageFinal.convertMessage()
+            self.socketUDP.sendto(bytesF, add)
+            self.logs.RP_RR(False, str(add), logsF, debugF, all)
 
     # Método do SR
     def ipPortaServerAut(self, extraValues):

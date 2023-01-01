@@ -9,7 +9,7 @@ TTL DEFAULT 86400
 @ SOAEXPIRE 604800 TTL
 @ NS ns1.10.in-addr.reverse. TTL
 ns1 A 10.0.23.10:53 TTL
-sp CNAME ns1 TTL
+sp6 CNAME ns1 TTL
 10.18.0.@ PTR SP1.lon3r.
 10.25.0.@ PTR SS7.johny.
 11.24.0.@ PTR SR3.dubai.johny.
