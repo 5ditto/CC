@@ -6,6 +6,7 @@ from query import Query
 
 class ST:
     def __init__(self):
+        self.timeout = int(sys.argv[3])
         self.portaAtendimento = sys.argv[2]
         self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o seu ficheiro config
         self.dom.parseFicheiroConfig()
@@ -16,7 +17,7 @@ class ST:
         self.cache = Cache()
         self.dom.parseDB(self.cache, self.logs, 'ST')
         self.logs.EV('ficheiro de dados lido')
-        self.query = Query(True, self.dom, self.cache, self.logs, self.portaAtendimento)
+        self.query = Query(True, self.dom, self.cache, self.logs, self.timeout, self.portaAtendimento)
         
 st = ST()
 st.query.recebeQuerys(True)

@@ -10,6 +10,7 @@ class SP:
 
     def __init__(self):
         self.portaAtendimento = sys.argv[2]
+        self.timeout = int(sys.argv[3])
         self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o seu ficheiro config
         self.dom.parseFicheiroConfig()
         self.dom.parseFicheiroListaST()
@@ -21,7 +22,7 @@ class SP:
         self.cache = Cache()
         self.dom.parseDB(self.cache, self.logs, 'SP')
         self.logs.EV('ficheiro de dados lido')
-        self.query = Query(True, self.dom, self.cache, self.logs, self.portaAtendimento)
+        self.query = Query(True, self.dom, self.cache, self.logs, self.timeout, self.portaAtendimento)
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         threading.Thread(target=self.conexaoTCP, args=()).start() # Thread que vai estar à escuta de novas ligações TCP
 

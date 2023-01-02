@@ -6,7 +6,7 @@ from dnsMessageBinary import DNSMessageBinary
 class Query:
 
     # O boolean server indica se a componente se trata de um servidor ou um cliente
-    def __init__(self, server, dom = None, cache = None, logs = None, portaAtendimento = None, 
+    def __init__(self, server, dom = None, cache = None, logs = None, timeout = None, portaAtendimento = None, 
     ipServer = None, porta = None, recursiva = None, name = None, typeValue = None):
         self.server = server
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -16,6 +16,7 @@ class Query:
             self.dom = dom
             self.cache = cache
             self.logs = logs
+            self.timeout = timeout
             self.socketUDP.bind(('', int(portaAtendimento)))
         else:
             self.ipServer = ipServer
@@ -146,6 +147,7 @@ class Query:
     # Se não, o SR pede a informação ao servidor autoritativo do domínio em questão
     def recebeQuerysDoCL(self):
         while True:
+            respondeu = False
             bytes, add = self.socketUDP.recvfrom(1024)
             dnsMessage1 = DNSMessageBinary.deconvertMessage(bytes)
             logs = dnsMessage1.dnsMessageLogs(True) # True porque é um pedido de query
@@ -157,24 +159,23 @@ class Query:
             
             index = self.cache.procuraEntradaValid(1, dnsMessage1.dom, dnsMessage1.typeValue)
             if index >= 0 and index <= self.cache.nrEntradas: # Temos a resposta em cache logo é só responder diretamente ao CL
+                respondeu = True
                 respString, dnsMessage2, all = self.geraRespQuery(dnsMessage1, False)
                 bytes = dnsMessage2.convertMessage()
                 logsSV = dnsMessage2.dnsMessageLogs(False) # False porque se trata da resposta a uma query
                 debugSV = dnsMessage2.dnsMessageDebug(False) # False porque se trata da resposta a uma query
             else: # A resposta à query não está em cache logo vamos ter que perguntar aos servidores
                 if (dnsMessage1.dom in self.dom.endDD.keys()) and len(self.dom.endDD[dnsMessage1.dom]) > 0: # Tenho pelo menos uma entrada DD para aquele dominio
-                    splited = re.split(":", self.dom.endDD[dnsMessage1.dom][0])
-                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                    s.sendto(bytes, (splited[0], int(splited[1]))) 
-                    self.logs.QR_QE(False, self.dom.endDD[dnsMessage1.dom][0], logs, debug, all)
+                    # splited = re.split(":", self.dom.endDD[dnsMessage1.dom][0])
+                    
+                    lista = []
+                    for elem in self.dom.endDD[dnsMessage1.dom]:
+                        lista.append(re.split(":", elem))
 
-                    bytes, add2 = s.recvfrom(1024)
-                    dnsMessage2 = DNSMessageBinary.deconvertMessage(bytes)
-                    logsSV = dnsMessage2.dnsMessageLogs(False) # False porque se trata da resposta a uma query
-                    debugSV = dnsMessage2.dnsMessageDebug(False) # False porque se trata da resposta a uma query
-                    # respString = resp.decode('utf-8')
-                    self.logs.RP_RR(True, str(add2), logsSV, debugSV, all)
-                    self.registaRespostaEmCache(dnsMessage2)
+                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    s.settimeout(self.timeout)
+                    respondeu, bytes, resposta, lista = self.queryAoServer(s,dnsMessage1,lista,False)
+        
                 else:
                     # Não existe numa entrada DD sobre o domínio em questão para obter a resposta diretamente, logo vamos perguntar ao ST
                     resposta = False
@@ -183,45 +184,41 @@ class Query:
                         recursiva = True
                     
                     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
-                    ip, porta = self.dom.endSTs[0]
+                    s.settimeout(self.timeout)
                     
                     if dnsMessage1.typeValue == 'PTR':
                         # Reverse mapping
-                        ip, porta = self.dom.endSTs[2]
+                        lista = [self.dom.endSTs[2]]
                         dnsMessage2 = DNSMessageBinary(random.randint(1, 65535), dnsMessage1.flags, "0", 0, 0, 0, "in-addr.reverse.", dnsMessage1.typeValue, "", "", "")
-                        resposta, ip, porta = self.queryAoServer(s, dnsMessage2, ip, porta)
+                        respondeu, bytes2, resposta, listaSv = self.queryAoServer(s, dnsMessage2, lista, True)
                         
-                        if resposta == False: # Se ainda não tivermos a reposta
+                        if respondeu == True and resposta == False: # Se um dos sv respondeu mas ainda não é a resposta final
                             dnsMessage4 = DNSMessageBinary(random.randint(1, 65535), dnsMessage1.flags, "0", 0, 0, 0, "10.in-addr.reverse.", dnsMessage1.typeValue, "", "", "")
-                            reposta, ip, porta = self.queryAoServer(s, dnsMessage4, ip, porta)
+                            respondeu, bytes2, reposta, listaSv = self.queryAoServer(s, dnsMessage4, listaSv, False)
 
                     elif dnsMessage1.dom.count('.') == 2: # Significa que a query é sobre um sub-domínio
                         # Temos que primeiro perguntar ao ST a informação sobre os servidores autoritários do domínio principal
                         domDom = dnsMessage1.dom.split(".")[1]
                         domDom += "."
                         dnsMessage2 = DNSMessageBinary(dnsMessage1.messageId, dnsMessage1.flags, dnsMessage1.responseCode, dnsMessage1.nrValues, dnsMessage1.nrAut, dnsMessage1.nrExtra, domDom, dnsMessage1.typeValue, "", "", "")
-                        resposta, ip, porta = self.queryAoServer(s, dnsMessage2, ip, porta)
+                        respondeu, bytes2, resposta, listaSv = self.queryAoServer(s, dnsMessage2, self.dom.endSTs, True)
                         
-                        if resposta == False: # Se ainda não tivermos a reposta
-                            resposta, ip, porta = self.queryAoServer(s, dnsMessage1, ip, porta) # Realiza a query inicial ao SDT
+                        if respondeu == True and resposta == False: # Se um dos sv respondeu mas ainda não é a resposta final
+                            respondeu, bytes2, resposta, listaSv = self.queryAoServer(s, dnsMessage1, listaSv, False) # Realiza a query inicial ao SDT
                             
                     else: # Significa que a query é sobre um domínio principal
-                        resposta, ip, porta = self.queryAoServer(s, dnsMessage1, ip, porta)
+                        # resposta, ip, porta = self.queryAoServer(s, dnsMessage1, ip, porta)
+                        respondeu, bytes2, resposta, listaSv = self.queryAoServer(s, dnsMessage1, self.dom.endSTs, True)
 
-                    if resposta == False: # Ainda não temos a reposta (Vamos fazer a query ao servidor final)
+                    if respondeu == True and resposta == False: # Ainda não temos a reposta (Vamos fazer a query ao servidor final)
                         # Fazemos a query, depois enviamos a resposta para o cliente
                         s1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
-                        s1.sendto(bytes, (ip, int(porta))) # Envia a query para o server autoritativo do dominio
-                        self.logs.QR_QE(False, ip + ":" + porta, logs, debug, all)
-    
-                        bytes, add2 = s1.recvfrom(1024) # Recebe resposta do server autoritativo do dominio
-                        dnsMessageSV = DNSMessageBinary.deconvertMessage(bytes)
-                        logsSV = dnsMessageSV.dnsMessageLogs(False) # False porque se trata da resposta a uma query
-                        debugSV = dnsMessageSV.dnsMessageDebug(False) # False porque se trata da resposta a uma query
-                        self.logs.RP_RR(True, str(add2), logsSV, debugSV, all)
-                        self.registaRespostaEmCache(dnsMessageSV)
+                        s1.settimeout(self.timeout)
+                        respondeu, bytes, reposta, lista = self.queryAoServer(s1, dnsMessage1, listaSv, False)
 
             # Envia a resposta para o cliente
+            # Mesmo que algum dos sv não tenha dado resposta nos enviamos a resposta "intermédia"
+            # Se tudo correu bem até ao final damos a responda correta
             dnsMessageFinal = DNSMessageBinary.deconvertMessage(bytes)
             dnsMessageFinal.retiraFlagA()
             logsF = dnsMessageFinal.dnsMessageLogs(False) # False porque se trata da resposta a uma query
@@ -239,32 +236,55 @@ class Query:
             lista[i] = re.split(" ", elem)
             i += 1
 
-        return re.split(":", lista[0][2])
-    
-    # Método do SR
-    def queryAoServer(self, s, dnsMessage, ip, porta):
-        resposta = False
+        listaR = []
+        i = 0
+
+        for elem in lista:
+            if len(elem) > 1:
+                listaR.append(re.split(":", lista[i][2]))
+                i += 1
+
+        return listaR
+
+    # Se o valor de respondeu for false se que nenhum dos servidores da lista estavam ativos! (abortar query)
+    def queryAoServer(self, s, dnsMessage, listSvAut, ST = False):
+        bytes2 = b''       # Inicialização das variáveis que vou retornar 
+        respondeu = False  # Inicialização das variáveis que vou retornar
+        resposta = False   # Inicialização das variáveis que vou retornar
+        listSvAutN = []    # Inicialização das variáveis que vou retornar
 
         bytes = dnsMessage.convertMessage()
         logs = dnsMessage.dnsMessageLogs(True) 
-        debug = dnsMessage.dnsMessageDebug(True) 
-        s.sendto(bytes, (ip, int(porta))) 
-        self.logs.QR_QE(False, ip + ":" + porta, logs, debug, all)
-        
-        bytes2, add2 = s.recvfrom(1024)
-        dnsMessage2 = DNSMessageBinary.deconvertMessage(bytes2)
-        logs2 = dnsMessage2.dnsMessageLogs(False) # False porque é a resposta a uma query
-        debug2 = dnsMessage2.dnsMessageDebug(False) # False porque é a resposta a uma query
-        self.logs.RP_RR(True, str(add2), logs2, debug2, all)
-        self.registaRespostaEmCache(dnsMessage2)
-        if(dnsMessage2.respValues == ""): # O ST não tem a resposta em cache
-            ip,porta = self.ipPortaServerAut(dnsMessage2.extraValues)
-            print("ipPorta: " + ip + ":" + porta)
-        else:
-            resposta = True
-        
-        return (resposta, ip, porta)
+        debug = dnsMessage.dnsMessageDebug(True)
+        for add in listSvAut: 
+            if ST:
+                ip,porta = add
+            else:
+                ip = add[0]
+                porta = add[1]
 
+            s.sendto(bytes, (ip, int(porta))) 
+            self.logs.QR_QE(False, ip + ":" + porta, logs, debug, all)
+            try:
+                bytes2, add2 = s.recvfrom(1024)
+            except socket.timeout:
+                print("Servidor com o endereço " + str(add) + " não está ativo!")
+                continue
+            else:
+                respondeu = True
+                dnsMessage2 = DNSMessageBinary.deconvertMessage(bytes2)
+                logs2 = dnsMessage2.dnsMessageLogs(False) # False porque é a resposta a uma query
+                debug2 = dnsMessage2.dnsMessageDebug(False) # False porque é a resposta a uma query
+                self.logs.RP_RR(True, str(add2), logs2, debug2, all)
+                self.registaRespostaEmCache(dnsMessage2)
+                if(dnsMessage2.respValues == ""): # O ST não tem a resposta em cache
+                    listSvAutN = self.ipPortaServerAut(dnsMessage2.extraValues)
+                    print(listSvAutN)
+                else:
+                    resposta = True # Resposta só vai ser True se o servidor responder com RespValues
+                break
+
+        return (respondeu, bytes2, resposta, listSvAutN)
 
     def registaRespostaEmCache(self, dnsMessage):
         index = -1

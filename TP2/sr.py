@@ -7,6 +7,7 @@ from query import Query
 class SR:
 
     def __init__(self):
+        self.timeout = int(sys.argv[3])
         self.portaAtendimento = sys.argv[2]
         self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o seu ficheiro config
         self.dom.parseFicheiroConfig()
@@ -18,7 +19,7 @@ class SR:
         self.logs.EV('criado ficheiro de logs')
         self.cache = Cache()
         self.logs.EV('cache iniciada')
-        self.query = Query(True, self.dom, self.cache, self.logs, self.portaAtendimento)
+        self.query = Query(True, self.dom, self.cache, self.logs, self.timeout, self.portaAtendimento)
         
 sr = SR()
 sr.query.recebeQuerysDoCL()

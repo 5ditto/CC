@@ -10,6 +10,7 @@ import threading
 class SS:
 
     def __init__(self):
+        self.timeout = int(sys.argv[3])
         self.portaAtendimento = sys.argv[2]
         self.dom = Dominio(sys.argv[1]) # O primeiro parâmetro do programa é o ficheiro config
         self.dom.parseFicheiroConfig()
@@ -19,7 +20,7 @@ class SS:
         self.logs.EV('criado ficheiro de logs')
         self.cache = Cache()
         self.versaoDB = -1
-        self.query = Query(True, self.dom, self.cache, self.logs, self.portaAtendimento)
+        self.query = Query(True, self.dom, self.cache, self.logs, self.timeout, self.portaAtendimento)
         # Thread que vai estar sempre à espera de novas querys
         threading.Thread(target = self.query.recebeQuerys, args = ([True])).start()
     
@@ -49,17 +50,20 @@ class SS:
         name, ttl = self.encontraNomeTTLDom(lista)
 
         for entrada in lista:
-            if entrada[1] != '#':
-                if len(entrada) >= 6 and entrada[1] == '@':
-                        self.cache.registaAtualizaEntrada(name, entrada[2], entrada[3], ttl, 'SP', entrada[5])
+            if entrada[1] != '#' and len(entrada) > 2:
+                if len(entrada) >= 6 and '@' in entrada[1]:
+                    entrada[1] = entrada[1].replace('@',name)
+                    self.cache.registaAtualizaEntrada(entrada[1], entrada[2], entrada[3], ttl, 'SP', entrada[5])
                 elif len(entrada) >= 6 and entrada[1] != '@':
                     self.cache.registaAtualizaEntrada(entrada[1], entrada[2], entrada[3], ttl, 'SP', entrada[5])
-                elif len(entrada) < 6 and entrada[1] == '@':
-                    self.cache.registaAtualizaEntrada(name, entrada[2], entrada[3], ttl, 'SP')
+                elif len(entrada) < 6 and '@' in entrada[1]:
+                    entrada[1] = entrada[1].replace('@',name)
+                    self.cache.registaAtualizaEntrada(entrada[1], entrada[2], entrada[3], ttl, 'SP')
                 else:
                     self.cache.registaAtualizaEntrada(entrada[1], entrada[2], entrada[3], ttl, 'SP')
 
             self.logs.EV("Registada entrada na cache do SS")
+
 
     # Na transferência de zona o cliente é o SS e o servidor é o SP
     # Falta implementar isto na transferência de zona:
